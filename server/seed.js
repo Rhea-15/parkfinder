@@ -215,7 +215,7 @@ const rawData = [
 ];
 
 // Mongo URI
-const MONGO_URI = "mongodb://localhost:27017/parkingdb";
+const MONGO_URI = process.env.MONGO_URI;
 const parkingData = rawData.map((slot) => ({
   ...slot,
   _id: new mongoose.Types.ObjectId(),

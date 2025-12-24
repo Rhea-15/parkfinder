@@ -81,7 +81,7 @@ export default function AdminPanel() {
   } | null>(null);
 
   const { token } = useAuth();
-  const API = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.REACT_APP_API_URL;
 
   // Fetch data based on active tab
   useEffect(() => {

@@ -37,12 +37,13 @@ const BookedSlotsPage: React.FC = () => {
 
   const { token, user } = useAuth();
   const receiptRef = useRef<HTMLDivElement>(null);
+  const API = import.meta.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchBookedSlots = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/bookings/my-bookings`,
+          `${API}/api/bookings/my-bookings`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,7 +73,7 @@ const BookedSlotsPage: React.FC = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/bookings/cancel/${id}`,
+        `${API}/api/bookings/cancel/${id}`,
         {
           method: "DELETE",
           headers: {

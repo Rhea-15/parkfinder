@@ -46,18 +46,21 @@ const ParkingSlotPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  const [selectedMapSlot, setSelectedMapSlot] = useState<ParkingSlot | null>(null);
+  const [selectedMapSlot, setSelectedMapSlot] = useState<ParkingSlot | null>(
+    null
+  );
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
   const [duration, setDuration] = useState(1);
   const { token, user } = useAuth();
+  const API = import.meta.env.REACT_APP_API_URL;
 
   // Function to fetch parking slots
   const fetchParkingSlots = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/parking`);
+      const response = await fetch(`${API}/api/parking`);
       const result: ApiResponse = await response.json();
       if (result.success) {
         // Add mock coordinates to slots
@@ -105,7 +108,7 @@ const ParkingSlotPage: React.FC = () => {
     fetchParkingSlots();
   }, []);
 
-  // Calculate distance between two coordinates 
+  // Calculate distance between two coordinates
   const calculateDistance = (
     lat1: number,
     lon1: number,
@@ -144,7 +147,7 @@ const ParkingSlotPage: React.FC = () => {
 
     setSelectedSlot(slot);
     setPaymentAmount(slot.pricePerHour * 1);
-    setDuration(1); 
+    setDuration(1);
     // Show modal
     document.getElementById("booking-modal")?.classList.remove("hidden");
     document.getElementById("booking-modal")?.classList.add("flex");
@@ -158,7 +161,7 @@ const ParkingSlotPage: React.FC = () => {
       // Calculate total price
       const totalPrice = selectedSlot.pricePerHour * duration;
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/book`, {
+      const res = await fetch(`${API}/api/bookings/book`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,10 +180,10 @@ const ParkingSlotPage: React.FC = () => {
         alert(" Booking successful!");
         // Close modal
         closeModal();
-        
+
         // Refresh parking slots to update availability
         fetchParkingSlots();
-        
+
         // Redirect to bookings page
         navigate("/bookings");
       } else {
@@ -798,8 +801,8 @@ const ParkingSlotPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-[#EEECF6]/80 max-w-2xl">
-                  Find, book, and manage parking slots with real-time availability
-                  and smart recommendations.
+                  Find, book, and manage parking slots with real-time
+                  availability and smart recommendations.
                 </p>
               </div>
 
@@ -832,7 +835,10 @@ const ParkingSlotPage: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-white mb-1">
-                      {parkingSlots.reduce((sum, slot) => sum + slot.capacity, 0)}
+                      {parkingSlots.reduce(
+                        (sum, slot) => sum + slot.capacity,
+                        0
+                      )}
                     </div>
                     <div className="text-sm text-[#EEECF6]/60">
                       Total Capacity
@@ -1036,8 +1042,12 @@ const ParkingSlotPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-[#1B42CB]/10 rounded-xl">
                     <div>
-                      <div className="text-sm text-[#EEECF6]/60">Parking Slot</div>
-                      <div className="font-bold text-[#EEECF6]">{selectedSlot.name}</div>
+                      <div className="text-sm text-[#EEECF6]/60">
+                        Parking Slot
+                      </div>
+                      <div className="font-bold text-[#EEECF6]">
+                        {selectedSlot.name}
+                      </div>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-linear-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center">
                       <span className="text-xl">🚗</span>
@@ -1052,7 +1062,9 @@ const ParkingSlotPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="p-3 bg-[#191919]/50 rounded-lg">
-                      <div className="text-sm text-[#EEECF6]/60">Price/Hour</div>
+                      <div className="text-sm text-[#EEECF6]/60">
+                        Price/Hour
+                      </div>
                       <div className="font-medium text-[#EEECF6]">
                         ₹{selectedSlot.pricePerHour}
                       </div>
@@ -1062,7 +1074,9 @@ const ParkingSlotPage: React.FC = () => {
 
                 {/* Duration Selector */}
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Select Duration</h3>
+                  <h3 className="text-lg font-semibold text-white mb-3">
+                    Select Duration
+                  </h3>
                   <div className="grid grid-cols-4 gap-2">
                     {[1, 2, 3, 4, 6, 8, 12, 24].map((hour) => (
                       <button
@@ -1085,14 +1099,20 @@ const ParkingSlotPage: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Price per hour</span>
-                      <span className="text-white">₹{selectedSlot.pricePerHour}</span>
+                      <span className="text-white">
+                        ₹{selectedSlot.pricePerHour}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Duration</span>
-                      <span className="text-white">{duration} hour{duration !== 1 ? 's' : ''}</span>
+                      <span className="text-white">
+                        {duration} hour{duration !== 1 ? "s" : ""}
+                      </span>
                     </div>
                     <div className="border-t border-gray-700 pt-3 flex justify-between">
-                      <span className="text-lg font-semibold text-white">Total Amount</span>
+                      <span className="text-lg font-semibold text-white">
+                        Total Amount
+                      </span>
                       <span className="text-2xl font-bold text-white">
                         ₹{selectedSlot.pricePerHour * duration}
                       </span>
@@ -1102,15 +1122,32 @@ const ParkingSlotPage: React.FC = () => {
 
                 {/* Payment Method */}
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-white">Payment Method</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Payment Method
+                  </h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg">
-                      <input type="radio" id="upi" name="payment" defaultChecked className="w-5 h-5" />
-                      <label htmlFor="upi" className="flex-1 text-white">UPI / QR Code</label>
+                      <input
+                        type="radio"
+                        id="upi"
+                        name="payment"
+                        defaultChecked
+                        className="w-5 h-5"
+                      />
+                      <label htmlFor="upi" className="flex-1 text-white">
+                        UPI / QR Code
+                      </label>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg">
-                      <input type="radio" id="card" name="payment" className="w-5 h-5" />
-                      <label htmlFor="card" className="flex-1 text-white">Credit/Debit Card</label>
+                      <input
+                        type="radio"
+                        id="card"
+                        name="payment"
+                        className="w-5 h-5"
+                      />
+                      <label htmlFor="card" className="flex-1 text-white">
+                        Credit/Debit Card
+                      </label>
                     </div>
                   </div>
                 </div>

@@ -9,7 +9,7 @@ import userManage from "./routes/userManage.js";
 import cors from "cors";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: ".env" });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
