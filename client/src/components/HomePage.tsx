@@ -6,9 +6,18 @@ const HomePage: React.FC = () => {
   const [activeSection, setActiveSection] = useState(0);
   const [parkingSlots, setParkingSlots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const mockCoordinates = [
+  interface ParkingSlot {
+    [key: string]: unknown;
+  }
+
+  interface Coordinates {
+    lat: number;
+    lng: number;
+  }
+
+  const mockCoordinates: Coordinates[] = [
     { lat: 28.6159, lng: 77.2095 }, // Slot 1
     { lat: 28.612, lng: 77.208 }, // Slot 2
     { lat: 28.6145, lng: 77.2105 }, // Slot 3
@@ -29,7 +38,7 @@ const HomePage: React.FC = () => {
       if (result.success) {
         // Add coordinates to each parking slot
         const slotsWithCoordinates = result.data.map(
-          (slot: any, index: number) => ({
+          (slot: ParkingSlot, index: number) => ({
             ...slot,
             coordinates: mockCoordinates[index % mockCoordinates.length] || {
               lat: 28.6139,
@@ -42,9 +51,8 @@ const HomePage: React.FC = () => {
         setError(result.message);
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unknown error occurred";
-      setError(errorMessage);
+      // Normalize unknown error to a string message
+      setError(err instanceof Error ? err.message : String(err));
       console.error(err);
     } finally {
       setLoading(false);
