@@ -360,7 +360,7 @@ const HomePage: React.FC = () => {
                           0.8 km
                         </div>
                         <div className="text-gray-500 text-xs">
-                          🚶 10 min walk
+                          10 min walk
                         </div>
                       </div>
                       <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors">
@@ -369,7 +369,7 @@ const HomePage: React.FC = () => {
                           COVERED
                         </div>
                         <div className="text-gray-500 text-xs">
-                          EV Charging ✅
+                          EV Charging
                         </div>
                       </div>
                       <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors">
