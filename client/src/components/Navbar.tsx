@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
 
   const navItems = [
     { name: "Home", path: "/" },
+    { name: "Dashboard", path: "/dashboard" },
     { name: "Parking Slots", path: "/parkingslots" },
     { name: "Bookings", path: "/bookings" },
     ...(user?.role === "admin"
