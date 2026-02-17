@@ -88,9 +88,75 @@ export default function AdminPanel() {
     id: string;
     name: string;
   } | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  // Detect system theme
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
+    setTheme(mediaQuery.matches ? "light" : "dark");
+
+    const handler = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? "light" : "dark");
+    };
+
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
 
   const { token } = useAuth();
   const API = import.meta.env.VITE_API_URL;
+
+  // Theme-based classes
+  const themeClasses = {
+    light: {
+      bg: "bg-gray-50",
+      cardBg: "bg-white",
+      cardBgSecondary: "bg-gray-100",
+      text: "text-gray-900",
+      textSecondary: "text-gray-600",
+      textMuted: "text-gray-500",
+      border: "border-gray-200",
+      borderAccent: "border-blue-200",
+      inputBg: "bg-white",
+      inputBorder: "border-gray-300",
+      hover: "hover:bg-gray-100",
+      gradient: {
+        primary: "from-blue-600 to-blue-500",
+        secondary: "from-pink-600 to-pink-500",
+        accent: "from-blue-600 to-pink-600",
+      },
+      shadow: "shadow-lg shadow-blue-500/10",
+      overlay: "bg-white/80",
+      tableHeader: "bg-gray-100",
+      tableRow: "hover:bg-gray-50",
+      modalBg: "bg-white",
+    },
+    dark: {
+      bg: "bg-[#191919]",
+      cardBg: "bg-[#191919]/80",
+      cardBgSecondary: "bg-[#191919]/60",
+      text: "text-[#EEECF6]",
+      textSecondary: "text-[#EEECF6]/80",
+      textMuted: "text-[#EEECF6]/60",
+      border: "border-[#1B42CB]/20",
+      borderAccent: "border-[#1B42CB]/30",
+      inputBg: "bg-[#191919]/50",
+      inputBorder: "border-[#1B42CB]/30",
+      hover: "hover:bg-[#1B42CB]/10",
+      gradient: {
+        primary: "from-[#1B42CB] to-[#1B42CB]/80",
+        secondary: "from-[#FF2F6C] to-[#FF2F6C]/80",
+        accent: "from-[#1B42CB] to-[#FF2F6C]",
+      },
+      shadow: "shadow-2xl shadow-[#1B42CB]/10",
+      overlay: "bg-black/80",
+      tableHeader: "bg-[#191919]/80",
+      tableRow: "hover:bg-[#1B42CB]/5",
+      modalBg: "bg-[#191919]/90",
+    },
+  };
+
+  const currentTheme = themeClasses[theme];
 
   // Fetch data based on active tab
   useEffect(() => {
@@ -434,26 +500,42 @@ export default function AdminPanel() {
   const getStatusColor = (status?: string): string => {
     switch ((status || "").toLowerCase()) {
       case "available":
-        return "bg-linear-to-r from-green-500 to-green-600 text-white";
+        return theme === "light"
+          ? "bg-green-500 text-white"
+          : "bg-linear-to-r from-green-500 to-green-600 text-white";
       case "occupied":
-        return "bg-linear-to-r from-red-500 to-red-600 text-white";
+        return theme === "light"
+          ? "bg-red-500 text-white"
+          : "bg-linear-to-r from-red-500 to-red-600 text-white";
       case "maintenance":
-        return "bg-linear-to-r from-yellow-500 to-yellow-600 text-black";
+        return theme === "light"
+          ? "bg-yellow-500 text-white"
+          : "bg-linear-to-r from-yellow-500 to-yellow-600 text-black";
       default:
-        return "bg-linear-to-r from-gray-500 to-gray-600 text-white";
+        return theme === "light"
+          ? "bg-gray-500 text-white"
+          : "bg-linear-to-r from-gray-500 to-gray-600 text-white";
     }
   };
 
   const getBookingStatusColor = (status?: string): string => {
     switch ((status || "").toLowerCase()) {
       case "active":
-        return "bg-green-500/20 text-green-300 border border-green-500/30";
+        return theme === "light"
+          ? "bg-green-100 text-green-800 border-green-200"
+          : "bg-green-500/20 text-green-300 border-green-500/30";
       case "cancelled":
-        return "bg-red-500/20 text-red-300 border border-red-500/30";
+        return theme === "light"
+          ? "bg-red-100 text-red-800 border-red-200"
+          : "bg-red-500/20 text-red-300 border-red-500/30";
       case "completed":
-        return "bg-blue-500/20 text-blue-300 border border-blue-500/30";
+        return theme === "light"
+          ? "bg-blue-100 text-blue-800 border-blue-200"
+          : "bg-blue-500/20 text-blue-300 border-blue-500/30";
       default:
-        return "bg-gray-500/20 text-gray-300 border border-gray-500/30";
+        return theme === "light"
+          ? "bg-gray-100 text-gray-800 border-gray-200"
+          : "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
 
@@ -461,40 +543,54 @@ export default function AdminPanel() {
     const roleLower = (role || "user").toLowerCase();
     switch (roleLower) {
       case "admin":
-        return "bg-purple-500/20 text-purple-300 border border-purple-500/30";
+        return theme === "light"
+          ? "bg-purple-100 text-purple-800 border-purple-200"
+          : "bg-purple-500/20 text-purple-300 border-purple-500/30";
       case "user":
-        return "bg-blue-500/20 text-blue-300 border border-blue-500/30";
+        return theme === "light"
+          ? "bg-blue-100 text-blue-800 border-blue-200"
+          : "bg-blue-500/20 text-blue-300 border-blue-500/30";
       default:
-        return "bg-gray-500/20 text-gray-300 border border-gray-500/30";
+        return theme === "light"
+          ? "bg-gray-100 text-gray-800 border-gray-200"
+          : "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#191919] via-[#0f0f0f] to-[#191919] p-4 md:p-6">
+    <div
+      className={`min-h-screen ${currentTheme.bg} transition-colors duration-300 p-4 md:p-6`}
+    >
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1B42CB]/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#FF2F6C]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-linear-to-r from-[#1B42CB]/5 to-[#FF2F6C]/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-r from-[#1B42CB]/5 to-[#FF2F6C]/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header with Premium Styling */}
         <header className="mb-8">
-          <div className="backdrop-blur-xl bg-[#191919]/40 border border-[#1B42CB]/20 rounded-2xl p-6 md:p-8 shadow-2xl shadow-[#1B42CB]/10">
+          <div
+            className={`backdrop-blur-xl ${currentTheme.cardBg} border ${currentTheme.border} rounded-2xl p-6 md:p-8 ${currentTheme.shadow}`}
+          >
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
                 <div className="flex items-center gap-4 mb-3">
-                  <div className="w-14 h-14 rounded-xl bg-linear-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
                     <Settings className="w-7 h-7 text-white" />
                   </div>
                   <div>
                     <h1 className="text-3xl md:text-4xl font-bold">
-                      <span className="bg-linear-to-r from-[#EEECF6] via-[#1B42CB] to-[#FF2F6C] bg-clip-text text-transparent">
+                      <span
+                        className={`bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] bg-clip-text text-transparent`}
+                      >
                         Admin Panel
                       </span>
                     </h1>
-                    <p className="text-[#EEECF6]/60 flex items-center gap-2">
+                    <p
+                      className={`${currentTheme.textMuted} flex items-center gap-2`}
+                    >
                       <Shield className="w-4 h-4" />
                       Manage parking slots, users, and bookings
                     </p>
@@ -504,26 +600,44 @@ export default function AdminPanel() {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="backdrop-blur-xl bg-[#191919]/80 border border-[#1B42CB]/30 rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300">
+                <div
+                  className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300`}
+                >
                   <ParkingSquare className="w-5 h-5 text-[#1B42CB] mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div
+                    className={`text-2xl font-bold ${currentTheme.text} mb-1`}
+                  >
                     {parkingSlots.length}
                   </div>
-                  <div className="text-xs text-[#EEECF6]/60">Parking Slots</div>
+                  <div className={`text-xs ${currentTheme.textMuted}`}>
+                    Parking Slots
+                  </div>
                 </div>
-                <div className="backdrop-blur-xl bg-[#191919]/80 border border-[#1B42CB]/30 rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300">
+                <div
+                  className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300`}
+                >
                   <Users className="w-5 h-5 text-[#FF2F6C] mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div
+                    className={`text-2xl font-bold ${currentTheme.text} mb-1`}
+                  >
                     {users.length}
                   </div>
-                  <div className="text-xs text-[#EEECF6]/60">Users</div>
+                  <div className={`text-xs ${currentTheme.textMuted}`}>
+                    Users
+                  </div>
                 </div>
-                <div className="backdrop-blur-xl bg-[#191919]/80 border border-[#1B42CB]/30 rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300">
+                <div
+                  className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-xl p-4 text-center group hover:border-[#FF2F6C]/30 transition-all duration-300`}
+                >
                   <Calendar className="w-5 h-5 text-green-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div
+                    className={`text-2xl font-bold ${currentTheme.text} mb-1`}
+                  >
                     {bookings.length}
                   </div>
-                  <div className="text-xs text-[#EEECF6]/60">Bookings</div>
+                  <div className={`text-xs ${currentTheme.textMuted}`}>
+                    Bookings
+                  </div>
                 </div>
               </div>
             </div>
@@ -531,18 +645,20 @@ export default function AdminPanel() {
         </header>
 
         {/* Premium Tabs */}
-        <div className="mb-8 backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl p-2 shadow-xl">
+        <div
+          className={`mb-8 backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl p-2 shadow-xl`}
+        >
           <div className="flex space-x-2">
             <button
               onClick={() => setActiveTab("parking")}
               className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group ${
                 activeTab === "parking"
                   ? "text-white"
-                  : "text-[#EEECF6]/70 hover:text-[#EEECF6]"
+                  : `${currentTheme.textSecondary} hover:${currentTheme.text}`
               }`}
             >
               {activeTab === "parking" && (
-                <div className="absolute inset-0 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
               )}
               <ParkingSquare
                 className={`w-5 h-5 relative z-10 ${activeTab === "parking" ? "animate-pulse" : ""}`}
@@ -557,11 +673,11 @@ export default function AdminPanel() {
               className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group ${
                 activeTab === "users"
                   ? "text-white"
-                  : "text-[#EEECF6]/70 hover:text-[#EEECF6]"
+                  : `${currentTheme.textSecondary} hover:${currentTheme.text}`
               }`}
             >
               {activeTab === "users" && (
-                <div className="absolute inset-0 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
               )}
               <Users
                 className={`w-5 h-5 relative z-10 ${activeTab === "users" ? "animate-pulse" : ""}`}
@@ -576,11 +692,11 @@ export default function AdminPanel() {
               className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group ${
                 activeTab === "bookings"
                   ? "text-white"
-                  : "text-[#EEECF6]/70 hover:text-[#EEECF6]"
+                  : `${currentTheme.textSecondary} hover:${currentTheme.text}`
               }`}
             >
               {activeTab === "bookings" && (
-                <div className="absolute inset-0 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] animate-gradient"></div>
               )}
               <Calendar
                 className={`w-5 h-5 relative z-10 ${activeTab === "bookings" ? "animate-pulse" : ""}`}
@@ -628,7 +744,7 @@ export default function AdminPanel() {
                       parking: e.target.value,
                     }))
                   }
-                  className="w-full pl-12 pr-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] placeholder-[#EEECF6]/40 focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                  className={`w-full pl-12 pr-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} placeholder-${currentTheme.textMuted} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                 />
               </div>
               <button
@@ -637,7 +753,7 @@ export default function AdminPanel() {
                   setEditingSlotId(null);
                   setShowSlotForm(true);
                 }}
-                className="px-6 py-3 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#FF2F6C]/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                className="px-6 py-3 bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#FF2F6C]/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
               >
                 <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
                 Add New Slot
@@ -653,38 +769,35 @@ export default function AdminPanel() {
                     <Car className="w-8 h-8 text-[#FF2F6C] animate-pulse" />
                   </div>
                 </div>
-                <p className="text-[#EEECF6]/60">Loading parking slots...</p>
+                <p className={currentTheme.textMuted}>
+                  Loading parking slots...
+                </p>
               </div>
             ) : filteredSlots.length === 0 ? (
-              <div className="backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl p-12 text-center group">
+              <div
+                className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl p-12 text-center group`}
+              >
                 <div className="relative inline-block">
-                  <ParkingSquare className="w-20 h-20 text-[#1B42CB]/30 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <ParkingSquare
+                    className={`w-20 h-20 ${currentTheme.textMuted} mx-auto mb-4 group-hover:scale-110 transition-transform`}
+                  />
                   <Zap className="w-6 h-6 text-[#FF2F6C] absolute -top-2 -right-2 animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#EEECF6] mb-2">
+                <h3 className={`text-2xl font-bold ${currentTheme.text} mb-2`}>
                   No Parking Slots Found
                 </h3>
-                <p className="text-[#EEECF6]/60 mb-6">
+                <p className={currentTheme.textMuted}>
                   {searchTerm.parking
                     ? "Try adjusting your search"
                     : "Add your first parking slot to get started"}
                 </p>
-                <button
-                  onClick={() => {
-                    setSlotForm({});
-                    setShowSlotForm(true);
-                  }}
-                  className="px-6 py-3 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#FF2F6C]/20 transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  Add First Slot
-                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSlots.map((slot) => (
                   <div
                     key={slot._id}
-                    className="group backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-[#1B42CB]/20 transition-all duration-500 transform hover:-translate-y-2"
+                    className={`group backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-[#1B42CB]/20 transition-all duration-500 transform hover:-translate-y-2`}
                   >
                     {/* Status Badge */}
                     <div
@@ -708,19 +821,27 @@ export default function AdminPanel() {
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="text-xl font-bold text-[#EEECF6] mb-1 flex items-center gap-2">
+                          <h3
+                            className={`text-xl font-bold ${currentTheme.text} mb-1 flex items-center gap-2`}
+                          >
                             <Building2 className="w-4 h-4 text-[#1B42CB]" />
                             {slot.name}
                           </h3>
-                          <p className="text-[#EEECF6]/60 text-sm flex items-center gap-1">
+                          <p
+                            className={`${currentTheme.textMuted} text-sm flex items-center gap-1`}
+                          >
                             <MapPin className="w-3 h-3" />
                             {slot.location}
                           </p>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-[#EEECF6] flex items-start">
+                          <div
+                            className={`text-2xl font-bold ${currentTheme.text} flex items-start`}
+                          >
                             ₹{slot.pricePerHour}
-                            <span className="text-sm text-[#EEECF6]/60 ml-1">
+                            <span
+                              className={`text-sm ${currentTheme.textMuted} ml-1`}
+                            >
                               /hr
                             </span>
                           </div>
@@ -730,20 +851,22 @@ export default function AdminPanel() {
                       {/* Progress Bar */}
                       <div className="mb-6">
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="text-[#EEECF6]/60 flex items-center gap-1">
+                          <span
+                            className={`${currentTheme.textMuted} flex items-center gap-1`}
+                          >
                             <Clock className="w-3 h-3" />
                             Availability
                           </span>
-                          <span className="text-[#EEECF6] font-medium">
+                          <span className={`${currentTheme.text} font-medium`}>
                             {Math.round(
                               (slot.availableSlots / slot.capacity) * 100,
                             )}
                             %
                           </span>
                         </div>
-                        <div className="h-2 bg-[#191919] rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] rounded-full transition-all duration-500 group-hover:from-[#FF2F6C] group-hover:to-[#1B42CB]"
+                            className="h-full bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] rounded-full transition-all duration-500 group-hover:from-[#FF2F6C] group-hover:to-[#1B42CB]"
                             style={{
                               width: `${(slot.availableSlots / slot.capacity) * 100}%`,
                             }}
@@ -755,7 +878,7 @@ export default function AdminPanel() {
                       {slot.rating && (
                         <div className="flex items-center gap-1 mb-4">
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm text-[#EEECF6]">
+                          <span className={`text-sm ${currentTheme.text}`}>
                             {slot.rating}
                           </span>
                         </div>
@@ -765,7 +888,7 @@ export default function AdminPanel() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEditSlot(slot)}
-                          className="flex-1 py-2.5 bg-[#191919] border border-[#1B42CB]/30 text-[#EEECF6] rounded-xl hover:bg-linear-to-r hover:from-[#1B42CB] hover:to-[#FF2F6C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group"
+                          className={`flex-1 py-2.5 ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.text} rounded-xl hover:bg-gradient-to-r hover:from-[#1B42CB] hover:to-[#FF2F6C] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group`}
                         >
                           <Edit className="w-4 h-4 group-hover:scale-110 transition-transform" />
                           Edit
@@ -778,7 +901,7 @@ export default function AdminPanel() {
                               name: slot.name,
                             })
                           }
-                          className="flex-1 py-2.5 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-linear-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group"
+                          className="flex-1 py-2.5 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group"
                         >
                           <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                           Delete
@@ -807,7 +930,7 @@ export default function AdminPanel() {
                 onChange={(e) =>
                   setSearchTerm((prev) => ({ ...prev, users: e.target.value }))
                 }
-                className="w-full pl-12 pr-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] placeholder-[#EEECF6]/40 focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                className={`w-full pl-12 pr-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} placeholder-${currentTheme.textMuted} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
               />
             </div>
 
@@ -820,42 +943,60 @@ export default function AdminPanel() {
                     <Users className="w-8 h-8 text-[#FF2F6C] animate-pulse" />
                   </div>
                 </div>
-                <p className="text-[#EEECF6]/60">Loading users...</p>
+                <p className={currentTheme.textMuted}>Loading users...</p>
               </div>
             ) : filteredUsers.length === 0 ? (
-              <div className="backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl p-12 text-center group">
+              <div
+                className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl p-12 text-center group`}
+              >
                 <div className="relative inline-block">
-                  <Users className="w-20 h-20 text-[#1B42CB]/30 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <Users
+                    className={`w-20 h-20 ${currentTheme.textMuted} mx-auto mb-4 group-hover:scale-110 transition-transform`}
+                  />
                   <Zap className="w-6 h-6 text-[#FF2F6C] absolute -top-2 -right-2 animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#EEECF6] mb-2">
+                <h3 className={`text-2xl font-bold ${currentTheme.text} mb-2`}>
                   No Users Found
                 </h3>
-                <p className="text-[#EEECF6]/60">
+                <p className={currentTheme.textMuted}>
                   {searchTerm.users
                     ? "Try adjusting your search"
                     : "No users registered yet"}
                 </p>
               </div>
             ) : (
-              <div className="backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl overflow-hidden">
+              <div
+                className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl overflow-hidden`}
+              >
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#1B42CB]/20 bg-[#191919]/80">
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                      <tr
+                        className={`border-b ${currentTheme.border} ${currentTheme.tableHeader}`}
+                      >
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           User
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Email
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Role
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Joined
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Actions
                         </th>
                       </tr>
@@ -873,24 +1014,30 @@ export default function AdminPanel() {
                         return (
                           <tr
                             key={_id}
-                            className="border-b border-[#1B42CB]/10 hover:bg-linear-to-r hover:from-[#1B42CB]/5 hover:to-[#FF2F6C]/5 transition-all duration-300"
+                            className={`border-b ${currentTheme.border} ${currentTheme.tableRow} transition-all duration-300`}
                           >
                             <td className="py-4 px-6">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
                                   <User className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                  <div className="font-medium text-[#EEECF6]">
+                                  <div
+                                    className={`font-medium ${currentTheme.text}`}
+                                  >
                                     {name}
                                   </div>
-                                  <div className="text-xs text-[#EEECF6]/40">
+                                  <div
+                                    className={`text-xs ${currentTheme.textMuted}`}
+                                  >
                                     ID: {_id.substring(0, 8)}...
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-4 px-6 text-[#EEECF6]/80">
+                            <td
+                              className={`py-4 px-6 ${currentTheme.textSecondary}`}
+                            >
                               {email}
                             </td>
                             <td className="py-4 px-6">
@@ -901,13 +1048,15 @@ export default function AdminPanel() {
                                 }
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getRoleColor(
                                   role,
-                                )} bg-[#191919]/50 focus:ring-2 focus:ring-[#FF2F6C]/20 focus:outline-none cursor-pointer transition-all duration-300`}
+                                )} ${currentTheme.inputBg} focus:ring-2 focus:ring-[#FF2F6C]/20 focus:outline-none cursor-pointer transition-all duration-300`}
                               >
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                               </select>
                             </td>
-                            <td className="py-4 px-6 text-[#EEECF6]/60">
+                            <td
+                              className={`py-4 px-6 ${currentTheme.textMuted}`}
+                            >
                               {formatDate(createdAt)}
                             </td>
                             <td className="py-4 px-6">
@@ -919,7 +1068,7 @@ export default function AdminPanel() {
                                     name: name,
                                   })
                                 }
-                                className="px-4 py-2 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-linear-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                                className="px-4 py-2 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                               >
                                 <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                 Delete
@@ -954,7 +1103,7 @@ export default function AdminPanel() {
                     bookings: e.target.value,
                   }))
                 }
-                className="w-full pl-12 pr-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] placeholder-[#EEECF6]/40 focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                className={`w-full pl-12 pr-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} placeholder-${currentTheme.textMuted} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
               />
             </div>
 
@@ -967,48 +1116,70 @@ export default function AdminPanel() {
                     <Calendar className="w-8 h-8 text-[#FF2F6C] animate-pulse" />
                   </div>
                 </div>
-                <p className="text-[#EEECF6]/60">Loading bookings...</p>
+                <p className={currentTheme.textMuted}>Loading bookings...</p>
               </div>
             ) : filteredBookings.length === 0 ? (
-              <div className="backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl p-12 text-center group">
+              <div
+                className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl p-12 text-center group`}
+              >
                 <div className="relative inline-block">
-                  <Calendar className="w-20 h-20 text-[#1B42CB]/30 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <Calendar
+                    className={`w-20 h-20 ${currentTheme.textMuted} mx-auto mb-4 group-hover:scale-110 transition-transform`}
+                  />
                   <Zap className="w-6 h-6 text-[#FF2F6C] absolute -top-2 -right-2 animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#EEECF6] mb-2">
+                <h3 className={`text-2xl font-bold ${currentTheme.text} mb-2`}>
                   No Bookings Found
                 </h3>
-                <p className="text-[#EEECF6]/60">
+                <p className={currentTheme.textMuted}>
                   {searchTerm.bookings
                     ? "Try adjusting your search"
                     : "No bookings have been made yet"}
                 </p>
               </div>
             ) : (
-              <div className="backdrop-blur-xl bg-[#191919]/60 border border-[#1B42CB]/20 rounded-2xl overflow-hidden">
+              <div
+                className={`backdrop-blur-xl ${currentTheme.cardBgSecondary} border ${currentTheme.border} rounded-2xl overflow-hidden`}
+              >
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#1B42CB]/20 bg-[#191919]/80">
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                      <tr
+                        className={`border-b ${currentTheme.border} ${currentTheme.tableHeader}`}
+                      >
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           User
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Parking Slot
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Date & Time
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Duration
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Amount
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Status
                         </th>
-                        <th className="text-left py-4 px-6 text-[#EEECF6] font-semibold">
+                        <th
+                          className={`text-left py-4 px-6 ${currentTheme.text} font-semibold`}
+                        >
                           Actions
                         </th>
                       </tr>
@@ -1017,18 +1188,22 @@ export default function AdminPanel() {
                       {filteredBookings.map((booking) => (
                         <tr
                           key={booking._id}
-                          className="border-b border-[#1B42CB]/10 hover:bg-linear-to-r hover:from-[#1B42CB]/5 hover:to-[#FF2F6C]/5 transition-all duration-300"
+                          className={`border-b ${currentTheme.border} ${currentTheme.tableRow} transition-all duration-300`}
                         >
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1B42CB] to-[#FF2F6C] flex items-center justify-center shadow-lg shadow-[#FF2F6C]/20">
                                 <User className="w-5 h-5 text-white" />
                               </div>
                               <div>
-                                <div className="font-medium text-[#EEECF6]">
+                                <div
+                                  className={`font-medium ${currentTheme.text}`}
+                                >
                                   {booking.userId?.name || "Unknown"}
                                 </div>
-                                <div className="text-xs text-[#EEECF6]/40">
+                                <div
+                                  className={`text-xs ${currentTheme.textMuted}`}
+                                >
                                   {booking.userId?.email || "No email"}
                                 </div>
                               </div>
@@ -1036,27 +1211,33 @@ export default function AdminPanel() {
                           </td>
                           <td className="py-4 px-6">
                             <div>
-                              <div className="font-medium text-[#EEECF6] flex items-center gap-1">
+                              <div
+                                className={`font-medium ${currentTheme.text} flex items-center gap-1`}
+                              >
                                 <Building2 className="w-3 h-3 text-[#1B42CB]" />
                                 {booking.parkingId?.name || "Unknown"}
                               </div>
-                              <div className="text-xs text-[#EEECF6]/40 flex items-center gap-1">
+                              <div
+                                className={`text-xs ${currentTheme.textMuted} flex items-center gap-1`}
+                              >
                                 <MapPin className="w-3 h-3" />
                                 {booking.parkingId?.location || "N/A"}
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 px-6 text-[#EEECF6]/60">
+                          <td className={`py-4 px-6 ${currentTheme.textMuted}`}>
                             {formatDate(booking.bookingDate)}
                           </td>
                           <td className="py-4 px-6">
-                            <div className="flex items-center gap-1 text-[#EEECF6]">
+                            <div
+                              className={`flex items-center gap-1 ${currentTheme.text}`}
+                            >
                               <Clock className="w-3 h-3" />
                               {booking.duration}h
                             </div>
                           </td>
                           <td className="py-4 px-6">
-                            <span className="font-bold text-[#EEECF6]">
+                            <span className={`font-bold ${currentTheme.text}`}>
                               ₹{booking.totalPrice}
                             </span>
                           </td>
@@ -1071,7 +1252,7 @@ export default function AdminPanel() {
                               }
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium ${getBookingStatusColor(
                                 booking.bookingStatus,
-                              )} bg-[#191919]/50 focus:ring-2 focus:ring-[#FF2F6C]/20 focus:outline-none cursor-pointer transition-all duration-300`}
+                              )} ${currentTheme.inputBg} focus:ring-2 focus:ring-[#FF2F6C]/20 focus:outline-none cursor-pointer transition-all duration-300`}
                             >
                               <option value="active">Active</option>
                               <option value="cancelled">Cancelled</option>
@@ -1088,7 +1269,7 @@ export default function AdminPanel() {
                                     name: `Booking by ${booking.userId?.name}`,
                                   })
                                 }
-                                className="px-4 py-2 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-linear-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center gap-2 group"
+                                className="px-4 py-2 bg-[#191919] border border-red-500/30 text-red-400 rounded-xl hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 hover:text-white transition-all duration-300 flex items-center gap-2 group"
                               >
                                 <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                 Delete
@@ -1108,12 +1289,18 @@ export default function AdminPanel() {
 
       {/* Slot Form Modal - Premium Styling */}
       {showSlotForm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="backdrop-blur-xl bg-[#191919]/90 border border-[#1B42CB]/30 rounded-2xl w-full max-w-2xl shadow-2xl shadow-[#1B42CB]/20 transform animate-slideUp">
-            <div className="p-6 border-b border-[#1B42CB]/20">
+        <div
+          className={`fixed inset-0 ${currentTheme.overlay} backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn`}
+        >
+          <div
+            className={`backdrop-blur-xl ${currentTheme.modalBg} border ${currentTheme.border} rounded-2xl w-full max-w-2xl shadow-2xl shadow-[#1B42CB]/20 transform animate-slideUp`}
+          >
+            <div className={`p-6 border-b ${currentTheme.border}`}>
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
-                  <span className="bg-linear-to-r from-[#EEECF6] to-[#FF2F6C] bg-clip-text text-transparent">
+                  <span
+                    className={`bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] bg-clip-text text-transparent`}
+                  >
                     {editingSlotId
                       ? "Edit Parking Slot"
                       : "Add New Parking Slot"}
@@ -1125,7 +1312,7 @@ export default function AdminPanel() {
                     setSlotForm({});
                     setEditingSlotId(null);
                   }}
-                  className="w-10 h-10 rounded-xl bg-[#191919] border border-[#1B42CB]/30 flex items-center justify-center text-[#EEECF6] hover:bg-linear-to-r hover:from-[#FF2F6C] hover:to-[#1B42CB] hover:text-white transition-all duration-300 group"
+                  className={`w-10 h-10 rounded-xl ${currentTheme.cardBg} border ${currentTheme.border} flex items-center justify-center ${currentTheme.text} hover:bg-gradient-to-r hover:from-[#FF2F6C] hover:to-[#1B42CB] hover:text-white transition-all duration-300 group`}
                 >
                   <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
                 </button>
@@ -1135,7 +1322,9 @@ export default function AdminPanel() {
             <form onSubmit={handleAddOrUpdateSlot} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2 items-center gap-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2 items-center gap-2`}
+                  >
                     <Building2 className="w-4 h-4 text-[#1B42CB]" />
                     Slot Name *
                   </label>
@@ -1146,12 +1335,14 @@ export default function AdminPanel() {
                     onChange={(e) =>
                       setSlotForm({ ...slotForm, name: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                     placeholder="Enter slot name"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2 items-center gap-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2 items-center gap-2`}
+                  >
                     <MapPin className="w-4 h-4 text-[#FF2F6C]" />
                     Location *
                   </label>
@@ -1165,12 +1356,14 @@ export default function AdminPanel() {
                         location: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                     placeholder="Enter location"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+                  >
                     Price per Hour (₹) *
                   </label>
                   <input
@@ -1185,12 +1378,14 @@ export default function AdminPanel() {
                         pricePerHour: Number(e.target.value),
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                     placeholder="Enter price"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+                  >
                     Status
                   </label>
                   <select
@@ -1198,7 +1393,7 @@ export default function AdminPanel() {
                     onChange={(e) =>
                       setSlotForm({ ...slotForm, status: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                   >
                     <option value="available">Available</option>
                     <option value="occupied">Occupied</option>
@@ -1206,7 +1401,9 @@ export default function AdminPanel() {
                   </select>
                 </div>
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+                  >
                     Total Capacity *
                   </label>
                   <input
@@ -1220,12 +1417,14 @@ export default function AdminPanel() {
                         capacity: Number(e.target.value),
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                     placeholder="Enter total capacity"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-sm font-medium text-[#EEECF6] mb-2">
+                  <label
+                    className={`block text-sm font-medium ${currentTheme.text} mb-2`}
+                  >
                     Available Slots *
                   </label>
                   <input
@@ -1239,7 +1438,7 @@ export default function AdminPanel() {
                         availableSlots: Number(e.target.value),
                       })
                     }
-                    className="w-full px-4 py-3 bg-[#191919]/50 border border-[#1B42CB]/30 rounded-xl text-[#EEECF6] focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300"
+                    className={`w-full px-4 py-3 ${currentTheme.inputBg} border ${currentTheme.inputBorder} rounded-xl ${currentTheme.text} focus:outline-none focus:border-[#FF2F6C] focus:ring-2 focus:ring-[#FF2F6C]/20 transition-all duration-300`}
                     placeholder="Enter available slots"
                   />
                 </div>
@@ -1253,13 +1452,13 @@ export default function AdminPanel() {
                     setSlotForm({});
                     setEditingSlotId(null);
                   }}
-                  className="px-6 py-3 bg-[#191919] border border-[#1B42CB]/30 text-[#EEECF6] font-semibold rounded-xl hover:bg-[#1B42CB]/10 transition-all duration-300"
+                  className={`px-6 py-3 ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.text} font-semibold rounded-xl ${currentTheme.hover} transition-all duration-300`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-linear-to-r from-[#1B42CB] to-[#FF2F6C] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#FF2F6C]/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2 group"
+                  className="px-6 py-3 bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#FF2F6C]/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2 group"
                 >
                   <Check className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   {editingSlotId ? "Update Slot" : "Add Slot"}
@@ -1272,30 +1471,40 @@ export default function AdminPanel() {
 
       {/* Delete Confirmation Modal - Premium Styling */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="backdrop-blur-xl bg-[#191919]/90 border border-red-500/30 rounded-2xl w-full max-w-md shadow-2xl shadow-red-500/10 transform animate-slideUp">
+        <div
+          className={`fixed inset-0 ${currentTheme.overlay} backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn`}
+        >
+          <div
+            className={`backdrop-blur-xl ${currentTheme.modalBg} border border-red-500/30 rounded-2xl w-full max-w-md shadow-2xl shadow-red-500/10 transform animate-slideUp`}
+          >
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-xl bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
                   <AlertCircle className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#EEECF6]">
+                  <h2 className={`text-xl font-bold ${currentTheme.text}`}>
                     Confirm Delete
                   </h2>
-                  <p className="text-[#EEECF6]/60">
+                  <p className={currentTheme.textMuted}>
                     Are you sure you want to delete this{" "}
                     {showDeleteConfirm.type}?
                   </p>
                 </div>
               </div>
 
-              <div className="mb-6 p-4 bg-[#191919]/50 rounded-xl border border-red-500/20">
-                <div className="font-medium text-[#EEECF6] flex items-center gap-2">
+              <div
+                className={`mb-6 p-4 ${currentTheme.cardBg} rounded-xl border border-red-500/20`}
+              >
+                <div
+                  className={`font-medium ${currentTheme.text} flex items-center gap-2`}
+                >
                   <Trash2 className="w-4 h-4 text-red-400" />
                   {showDeleteConfirm.name}
                 </div>
-                <div className="text-sm text-[#EEECF6]/40 mt-2 flex items-center gap-1">
+                <div
+                  className={`text-sm ${currentTheme.textMuted} mt-2 flex items-center gap-1`}
+                >
                   <AlertCircle className="w-3 h-3" />
                   This action cannot be undone
                 </div>
@@ -1304,7 +1513,7 @@ export default function AdminPanel() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(null)}
-                  className="flex-1 px-6 py-3 bg-[#191919] border border-[#1B42CB]/30 text-[#EEECF6] font-semibold rounded-xl hover:bg-[#1B42CB]/10 transition-all duration-300"
+                  className={`flex-1 px-6 py-3 ${currentTheme.cardBg} border ${currentTheme.border} ${currentTheme.text} font-semibold rounded-xl ${currentTheme.hover} transition-all duration-300`}
                 >
                   Cancel
                 </button>
@@ -1318,7 +1527,7 @@ export default function AdminPanel() {
                       handleDeleteBooking(showDeleteConfirm.id);
                     }
                   }}
-                  className="flex-1 px-6 py-3 bg-linear-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
                   <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   Delete
