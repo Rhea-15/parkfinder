@@ -162,7 +162,7 @@ const Navbar: React.FC = () => {
             {/* ========================= */}
 
             <Link to="/" className="relative flex items-center group">
-              <img
+              {/* <img
                 src="/logo.png"
                 alt="SmartPark"
                 className="h-12 md:h-14 w-auto object-contain transition-all duration-500 group-hover:scale-110"
@@ -171,6 +171,18 @@ const Navbar: React.FC = () => {
                     theme === "light"
                       ? "drop-shadow(0 0 10px rgba(27,66,203,0.25))"
                       : "brightness(0) invert(1) drop-shadow(0 0 12px rgba(91,124,255,0.5))",
+                }}
+              /> */}
+
+              <img
+                src="/logo.png"
+                alt="SmartPark"
+                className="h-11 md:h-12 w-auto object-contain transition-all duration-300 group-hover:scale-105"
+                style={{
+                  filter:
+                    theme === "light"
+                      ? "brightness(0)"
+                      : "brightness(0) invert(1)",
                 }}
               />
 
