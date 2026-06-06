@@ -18,6 +18,11 @@ interface ParkingSlot {
     lat: number;
     lng: number;
   };
+  emergencyContact?: {
+    phone: string;
+    supportEmail?: string;
+    managerName?: string;
+  };
 }
 
 interface ApiResponse {
@@ -451,6 +456,7 @@ const ParkingSlotPage: React.FC = () => {
 
     return (
       <div className="space-y-6">
+        {/* Map Container */}
         <div
           className={`backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl overflow-hidden shadow-xl`}
         >
@@ -548,6 +554,7 @@ const ParkingSlotPage: React.FC = () => {
                 );
               })}
 
+              {/* Map Legend */}
               <div
                 className={`absolute bottom-4 right-4 backdrop-blur-xl ${themeClasses.cardBgSecondary} ${themeClasses.cardBorder} border rounded-xl p-4`}
               >
@@ -588,31 +595,9 @@ const ParkingSlotPage: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className={`text-xl font-bold ${themeClasses.text}`}>
-                    {selectedMapSlot.name}
-                  </h3>
-                  {/* NEW: Heart Button for Map Details */}
-                  <button
-                    onClick={(e) =>
-                      handleToggleFavorite(e, selectedMapSlot._id)
-                    }
-                    className="focus:outline-none transition-transform hover:scale-110"
-                    title={
-                      favorites.includes(selectedMapSlot._id)
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
-                  >
-                    <Icons.Heart
-                      className={`w-5 h-5 transition-colors ${
-                        favorites.includes(selectedMapSlot._id)
-                          ? "text-[#FF2F6C] fill-current"
-                          : themeClasses.textMuted
-                      }`}
-                    />
-                  </button>
-                </div>
+                <h3 className={`text-xl font-bold ${themeClasses.text}`}>
+                  {selectedMapSlot.name}
+                </h3>
                 <p className={themeClasses.textSecondary}>
                   {selectedMapSlot.location}
                 </p>
@@ -664,6 +649,35 @@ const ParkingSlotPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* --- NEW EMERGENCY BLOCK FOR MAP VIEW --- */}
+            {selectedMapSlot.emergencyContact?.phone && (
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icons.AlertTriangle className="w-5 h-5 text-red-500" />
+                  <span className={`font-semibold ${themeClasses.text}`}>Emergency Assistance</span>
+                </div>
+                <div className="flex gap-3">
+                  <a
+                    href={`tel:${selectedMapSlot.emergencyContact.phone}`}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors font-medium"
+                  >
+                    <Icons.PhoneCall className="w-4 h-4" />
+                    Call Support
+                  </a>
+                  {selectedMapSlot.emergencyContact.supportEmail && (
+                    <a
+                      href={`mailto:${selectedMapSlot.emergencyContact.supportEmail}`}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.text} rounded-xl ${themeClasses.hover} transition-colors font-medium`}
+                    >
+                      <Icons.Mail className="w-4 h-4" />
+                      Email Support
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+            {/* -------------------------------------- */}
 
             <div className="flex gap-3">
               <a
@@ -735,29 +749,11 @@ const ParkingSlotPage: React.FC = () => {
                 {/* Header */}
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className={`text-xl font-bold ${themeClasses.text}`}>
-                        {slot.name}
-                      </h3>
-                      {/* NEW: Heart Button for List Cards */}
-                      <button
-                        onClick={(e) => handleToggleFavorite(e, slot._id)}
-                        className="focus:outline-none transition-transform hover:scale-110"
-                        title={
-                          favorites.includes(slot._id)
-                            ? "Remove from favorites"
-                            : "Add to favorites"
-                        }
-                      >
-                        <Icons.Heart
-                          className={`w-5 h-5 transition-colors ${
-                            favorites.includes(slot._id)
-                              ? "text-[#FF2F6C] fill-current"
-                              : themeClasses.textMuted
-                          }`}
-                        />
-                      </button>
-                    </div>
+                    <h3
+                      className={`text-xl font-bold ${themeClasses.text} mb-1`}
+                    >
+                      {slot.name}
+                    </h3>
                     <div className="flex items-center gap-2">
                       <div
                         className={`text-lg font-bold ${getRatingColor(
@@ -878,6 +874,35 @@ const ParkingSlotPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* --- NEW EMERGENCY BLOCK FOR LIST VIEW --- */}
+                {slot.emergencyContact?.phone && (
+                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Icons.AlertTriangle className="w-4 h-4 text-red-500" />
+                      <span className={`text-sm font-semibold ${themeClasses.text}`}>Emergency Assistance</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href={`tel:${slot.emergencyContact.phone}`}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <Icons.PhoneCall className="w-4 h-4" />
+                        Call
+                      </a>
+                      {slot.emergencyContact.supportEmail && (
+                        <a
+                          href={`mailto:${slot.emergencyContact.supportEmail}`}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.text} rounded-lg ${themeClasses.hover} transition-colors text-sm font-medium`}
+                        >
+                          <Icons.Mail className="w-4 h-4" />
+                          Email
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {/* --------------------------------------- */}
+
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <a
@@ -987,6 +1012,7 @@ const ParkingSlotPage: React.FC = () => {
       <div
         className={`min-h-screen ${themeClasses.bg} transition-colors duration-300 p-4 md:p-6`}
       >
+        {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#1B42CB]/10 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#FF2F6C]/10 rounded-full blur-3xl"></div>
@@ -1077,6 +1103,7 @@ const ParkingSlotPage: React.FC = () => {
             </div>
           </header>
 
+          {/* Filter/Search Section with View Toggle */}
           <div
             className={`mb-8 backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl p-6 shadow-xl`}
           >
@@ -1259,6 +1286,7 @@ const ParkingSlotPage: React.FC = () => {
         <div
           className={`backdrop-blur-xl ${themeClasses.cardBgSecondary} ${themeClasses.cardBorder} border rounded-2xl w-full max-w-md shadow-2xl shadow-[#1B42CB]/10 animate-scale-in`}
         >
+          {/* Modal Header */}
           <div className={`p-6 border-b ${themeClasses.border}`}>
             <div className="flex items-center justify-between">
               <h2
@@ -1434,6 +1462,7 @@ const ParkingSlotPage: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Security Note */}
                 <div
                   className={`text-center pt-4 border-t ${themeClasses.border}`}
                 >
@@ -1453,4 +1482,4 @@ const ParkingSlotPage: React.FC = () => {
   );
 };
 
-export default ParkingSlotPage;
+export default ParkingSlotPage; 
