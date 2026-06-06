@@ -8,47 +8,46 @@ export const getActiveBooking = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const activeBooking = await Booking.findOne({
+    const activeBookings = await Booking.find({
       userId,
       bookingStatus: "active",
     })
       .populate("parkingId")
       .sort({ bookingDate: -1 });
 
-    if (!activeBooking) {
-      return res.json({ success: true, data: null });
+    if (!activeBookings.length) {
+      return res.json({ success: true, data: [] });
     }
 
-    // Calculate expected end time based on booking date + duration
-    const bookedAt = new Date(activeBooking.bookingDate);
-    const expectedEnd = new Date(
-      bookedAt.getTime() + activeBooking.duration * 60 * 60 * 1000
-    );
-
-    res.json({
-      success: true,
-      data: {
-        bookingId: activeBooking._id,
-        bookingDate: activeBooking.bookingDate,
-        duration: activeBooking.duration,
-        totalPrice: activeBooking.totalPrice,
+    const data = activeBookings.map((booking) => {
+      const bookedAt = new Date(booking.bookingDate);
+      const expectedEnd = new Date(
+        bookedAt.getTime() + booking.duration * 60 * 60 * 1000
+      );
+      return {
+        bookingId: booking._id,
+        bookingDate: booking.bookingDate,
+        duration: booking.duration,
+        totalPrice: booking.totalPrice,
         expectedEnd,
         parking: {
-          id: activeBooking.parkingId?._id,
-          name: activeBooking.parkingId?.name,
-          location: activeBooking.parkingId?.location,
-          floor: activeBooking.parkingId?.floor || "Ground Floor",
-          slotNumber: activeBooking.parkingId?.slotNumber || "N/A",
-          isCovered: activeBooking.parkingId?.isCovered,
-          securityLevel: activeBooking.parkingId?.securityLevel,
+          id: booking.parkingId?._id,
+          name: booking.parkingId?.name,
+          location: booking.parkingId?.location,
+          floor: booking.parkingId?.floor || "Ground Floor",
+          slotNumber: booking.parkingId?.slotNumber || "N/A",
+          isCovered: booking.parkingId?.isCovered,
+          securityLevel: booking.parkingId?.securityLevel,
         },
-      },
+      };
     });
+
+    res.json({ success: true, data });
   } catch (error) {
     console.error("Active booking fetch error:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch active booking",
+      message: "Failed to fetch active bookings",
     });
   }
 };
