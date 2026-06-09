@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
-import Parking from "./models/Parking.js";
+import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import { faker } from "@faker-js/faker";
+
+import User from "./models/User.js";
+import Parking from "./models/Parking.js";
+import Booking from "./models/Booking.js";
+import ParkingLog from "./models/ParkingLog.js";
+
 dotenv.config();
 
 const rawData = [
@@ -97,12 +104,37 @@ const rawData = [
     ],
   },
   {
-    name: "Tech Park Parking",
-    location: "Electronic City, Bangalore",
-    pricePerHour: 25,
-    status: "closed",
-    distance: "3km",
-    capacity: 150,
+    name: "Power Favoriter",
+    email: "power.favorites@demo.com",
+    password: "Demo@1234",
+    role: "user",
+    favorites: [],
+  },
+  {
+    name: "Zero Faves",
+    email: "zero.faves@demo.com",
+    password: "Demo@1234",
+    role: "user",
+    favorites: [],
+  },
+  {
+    name: "New User Empty",
+    email: "newbie@demo.com",
+    password: "Demo@1234",
+    role: "user",
+    favorites: [],
+  },
+];
+
+// Define specific static parking lots
+const staticParkingLots = [
+  {
+    name: "Fully Occupied Lot",
+    location: "Connaught Place, Delhi",
+    pricePerHour: 45,
+    status: "occupied",
+    distance: "2km",
+    capacity: 100,
     availableSlots: 0,
     isCovered: true,
     securityLevel: "medium",
@@ -115,14 +147,14 @@ const rawData = [
     ],
   },
   {
-    name: "Railway Station Parking",
-    location: "Pune Junction, Pune",
-    pricePerHour: 35,
-    status: "available",
-    distance: "1km",
-    capacity: 250,
-    availableSlots: 93,
-    isCovered: false,
+    name: "Under Repair Garage",
+    location: "Bandra, Mumbai",
+    pricePerHour: 0,
+    status: "maintenance",
+    distance: "4km",
+    capacity: 200,
+    availableSlots: 0,
+    isCovered: true,
     securityLevel: "medium",
     rating: 4.1,
     openingTime: "24 Hours",
@@ -133,13 +165,13 @@ const rawData = [
     ],
   },
   {
-    name: "IT Hub Parking Lot",
-    location: "Hinjewadi Phase 1, Pune",
-    pricePerHour: 30,
+    name: "Super Ultra Premium Covered Multi-Level Automated Smart Parking Facility — Phase III Extension Wing North Block",
+    location: "Whitefield IT Corridor, Outer Ring Road, Bangalore, Karnataka 560066, India",
+    pricePerHour: 75,
     status: "available",
-    distance: "10km",
-    capacity: 300,
-    availableSlots: 150,
+    distance: "8km",
+    capacity: 600,
+    availableSlots: 300,
     isCovered: true,
     securityLevel: "high",
     rating: 4.4,
@@ -152,16 +184,16 @@ const rawData = [
     ],
   },
   {
-    name: "Community Center Parking",
-    location: "Rohini Sector 3, Delhi",
-    pricePerHour: 15,
+    name: "Zero Slots But Open",
+    location: "Sarojini Nagar, Delhi",
+    pricePerHour: 20,
     status: "available",
-    distance: "5km",
-    capacity: 80,
-    availableSlots: 32,
+    distance: "2km",
+    capacity: 50,
+    availableSlots: 0,
     isCovered: false,
     securityLevel: "low",
-    rating: 3.5,
+    rating: 3.2,
     openingTime: "08:00 AM",
     closingTime: "09:00 PM",
     images: [
@@ -169,13 +201,13 @@ const rawData = [
     ],
   },
   {
-    name: "Techno Mall Parking",
-    location: "Salt Lake, Kolkata",
-    pricePerHour: 40,
+    name: "Büro & Café Parking (Ñoida) — 'Premium' [Zone A]",
+    location: "Straße 12, München – Süd; Near <Mall>",
+    pricePerHour: 55,
     status: "available",
     distance: "3km",
-    capacity: 220,
-    availableSlots: 88,
+    capacity: 80,
+    availableSlots: 40,
     isCovered: true,
     securityLevel: "medium",
     rating: 4.3,
@@ -187,13 +219,13 @@ const rawData = [
     ],
   },
   {
-    name: "Harbour View Parking",
-    location: "Marine Drive, Mumbai",
+    name: "🚗 Smart Park 🅿️ — EV Charging ⚡ Zone",
+    location: "Koramangala 4th Block 🏙️, Bangalore",
     pricePerHour: 60,
-    status: "closed",
-    distance: "10km",
-    capacity: 140,
-    availableSlots: 0,
+    status: "available",
+    distance: "2km",
+    capacity: 120,
+    availableSlots: 60,
     isCovered: true,
     securityLevel: "high",
     rating: 4.6,
@@ -228,12 +260,12 @@ const rawData = [
     location: "Sector 62, No_ida",
     pricePerHour: 35,
     status: "available",
-    distance: "5km",
-    capacity: 260,
-    availableSlots: 115,
+    distance: "6km",
+    capacity: 70,
+    availableSlots: 35,
     isCovered: false,
-    securityLevel: "medium",
-    rating: 4.0,
+    securityLevel: "low",
+    rating: 3.7,
     openingTime: "09:00 AM",
     closingTime: "11:00 PM",
     images: [
@@ -242,13 +274,13 @@ const rawData = [
     ],
   },
   {
-    name: "Business Tower Parking",
-    location: "Cyber Hub, Gurgaon",
-    pricePerHour: 55,
+    name: "Full Contact Parking Hub",
+    location: "Nariman Point, Mumbai",
+    pricePerHour: 70,
     status: "available",
-    distance: "3km",
-    capacity: 180,
-    availableSlots: 63,
+    distance: "1km",
+    capacity: 160,
+    availableSlots: 80,
     isCovered: true,
     securityLevel: "high",
     rating: 4.7,
@@ -288,6 +320,10 @@ const parkingData = rawData.map((slot) => ({
 
 async function seedDB() {
   try {
+    if (!MONGO_URI) {
+      throw new Error("MONGO_URI environment variable is not defined.");
+    }
+
     await mongoose.connect(MONGO_URI);
     console.log("MongoDB Connected");
     await Parking.deleteMany();
@@ -295,7 +331,7 @@ async function seedDB() {
     console.log("Parking data inserted successfully!");
     process.exit();
   } catch (err) {
-    console.error(err);
+    console.error("Database seeding failed:", err);
     process.exit(1);
   }
 }
