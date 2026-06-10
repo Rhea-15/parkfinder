@@ -44,7 +44,10 @@ const mockCoordinates = [
 ];
 
 // Image Carousel Component
-const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({ images, name }) => {
+const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({
+  images,
+  name,
+}) => {
   const [current, setCurrent] = React.useState(0);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -109,7 +112,11 @@ const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({ images, n
             {images.map((_, i) => (
               <button
                 key={i}
-                onClick={(e) => { e.stopPropagation(); setLoaded(false); setCurrent(i); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLoaded(false);
+                  setCurrent(i);
+                }}
                 className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i === current ? "bg-white w-3" : "bg-white/50"}`}
               />
             ))}
@@ -152,7 +159,9 @@ const ParkingSlotPage: React.FC = () => {
   const { token, user } = useAuth();
 
   // Prediction panel state
-  const [predictionSlot, setPredictionSlot] = useState<ParkingSlot | null>(null);
+  const [predictionSlot, setPredictionSlot] = useState<ParkingSlot | null>(
+    null,
+  );
 
   // Detect system theme
   const { theme } = useTheme();
@@ -1188,7 +1197,9 @@ const ParkingSlotPage: React.FC = () => {
                     <div
                       className={`text-3xl font-bold ${themeClasses.text} mb-1`}
                     >
-                      ₹{Math.min(...parkingSlots.map((s) => s.pricePerHour))}
+                      {parkingSlots.length > 0
+                        ? `₹${Math.min(...parkingSlots.map((s) => s.pricePerHour))}`
+                        : "N/A"}
                     </div>
                     <div className={`text-sm ${themeClasses.textSecondary}`}>
                       Starting Price
@@ -1397,7 +1408,8 @@ const ParkingSlotPage: React.FC = () => {
       )}
 
       {/* Booking Modal */}
-      <div        id="booking-modal"
+      <div
+        id="booking-modal"
         className="hidden fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center z-50 p-4"
       >
         <div
@@ -1600,6 +1612,3 @@ const ParkingSlotPage: React.FC = () => {
 };
 
 export default ParkingSlotPage; 
-
-
-
