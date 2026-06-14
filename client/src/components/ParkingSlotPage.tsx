@@ -232,9 +232,6 @@ const ParkingSlotPage: React.FC = () => {
   // State for tracking favorited location IDs
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  const [vehicleFilter, setVehicleFilter] = useState<string>("All");
-  const vehicleTypes = ["All", "Car", "Bike", "SUV", "EV"];
-
   // Navigation & routing hook usage
   const {
     routeCoords,
@@ -379,45 +376,45 @@ const ParkingSlotPage: React.FC = () => {
   }, [token]);
 
   // Handle Toggle Favorite Button Click
-  // const handleToggleFavorite = async (
-  //   e: React.MouseEvent,
-  //   locationId: string,
-  // ) => {
-  //   e.stopPropagation(); // Prevents map markers from triggering if nested
-  //
-  //   if (!token || !user) {
-  //     alert("Please login to save favorite locations");
-  //     navigate("/login");
-  //     return;
-  //   }
-  //
-  //   try {
-  //     // Optimistically update UI
-  //     setFavorites((prev) =>
-  //       prev.includes(locationId)
-  //         ? prev.filter((id) => id !== locationId)
-  //         : [...prev, locationId],
-  //     );
-  //
-  //     const res = await fetch(`/api/favorites/${locationId}`, {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //
-  //     const data = await res.json();
-  //     if (!data.success) {
-  //       // Revert on failure
-  //       fetchFavorites();
-  //       console.error("Failed to toggle favorite:", data.message);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error toggling favorite:", err);
-  //     fetchFavorites(); // Revert on failure
-  //   }
-  // };
+  const handleToggleFavorite = async (
+    e: React.MouseEvent,
+    locationId: string,
+  ) => {
+    e.stopPropagation(); // Prevents map markers from triggering if nested
+  
+    if (!token || !user) {
+      alert("Please login to save favorite locations");
+      navigate("/login");
+      return;
+    }
+  
+    try {
+      // Optimistically update UI
+      setFavorites((prev) =>
+        prev.includes(locationId)
+          ? prev.filter((id) => id !== locationId)
+          : [...prev, locationId],
+      );
+  
+      const res = await fetch(`/api/favorites/${locationId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+  
+      const data = await res.json();
+      if (!data.success) {
+        // Revert on failure
+        fetchFavorites();
+        console.error("Failed to toggle favorite:", data.message);
+      }
+    } catch (err) {
+      console.error("Error toggling favorite:", err);
+      fetchFavorites(); // Revert on failure
+    }
+  };
 
   // Calculate distance between two coordinates
   const calculateDistance = (
