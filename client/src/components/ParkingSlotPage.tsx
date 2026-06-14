@@ -4,6 +4,7 @@ import * as Icons from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import PredictionPanel from "./PredictionPanel";
+import FloorVisualization from "./FloorVisualization";
 
 interface ParkingSlot {
   _id: string;
@@ -35,16 +36,19 @@ interface ApiResponse {
 
 // Mock coordinates for demo
 const mockCoordinates = [
-  { lat: 28.6139, lng: 77.209 }, // Delhi
-  { lat: 28.5355, lng: 77.391 }, // Noida
-  { lat: 28.4595, lng: 77.0266 }, // Gurgaon
-  { lat: 28.7041, lng: 77.1025 }, // North Delhi
-  { lat: 28.4089, lng: 77.3178 }, // Faridabad
-  { lat: 28.6692, lng: 77.4535 }, // Ghaziabad
+  { lat: 28.6139, lng: 77.209 },
+  { lat: 28.5355, lng: 77.391 },
+  { lat: 28.4595, lng: 77.0266 },
+  { lat: 28.7041, lng: 77.1025 },
+  { lat: 28.4089, lng: 77.3178 },
+  { lat: 28.6692, lng: 77.4535 },
 ];
 
 // Image Carousel Component
-const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({ images, name }) => {
+const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({
+  images,
+  name,
+}) => {
   const [current, setCurrent] = React.useState(0);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -85,11 +89,11 @@ const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({ images, n
         loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
       />
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-      {/* Navigation arrows � only show if more than 1 image */}
       {images.length > 1 && (
         <>
           <button
@@ -104,19 +108,23 @@ const ImageCarousel: React.FC<{ images: string[]; name: string }> = ({ images, n
           >
             <Icons.ChevronRight className="w-4 h-4" />
           </button>
-          {/* Dot indicators */}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
             {images.map((_, i) => (
               <button
                 key={i}
-                onClick={(e) => { e.stopPropagation(); setLoaded(false); setCurrent(i); }}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i === current ? "bg-white w-3" : "bg-white/50"}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLoaded(false);
+                  setCurrent(i);
+                }}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                  i === current ? "bg-white w-3" : "bg-white/50"
+                }`}
               />
             ))}
           </div>
         </>
       )}
-      {/* Photo count badge */}
       <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-xs flex items-center gap-1">
         <Icons.Camera className="w-3 h-3" />
         {current + 1}/{images.length}
@@ -138,26 +146,27 @@ const ParkingSlotPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [selectedMapSlot, setSelectedMapSlot] = useState<ParkingSlot | null>(
-    null,
+    null
   );
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
   const [duration, setDuration] = useState(1);
-
-  // State for tracking favorited location IDs
   const [favorites, setFavorites] = useState<string[]>([]);
-
   const { token, user } = useAuth();
 
   // Prediction panel state
-  const [predictionSlot, setPredictionSlot] = useState<ParkingSlot | null>(null);
+  const [predictionSlot, setPredictionSlot] = useState<ParkingSlot | null>(
+    null
+  );
 
-  // Detect system theme
+  // ── Floor visualization state ────────────────────────────────────────────
+  const [floorSlot, setFloorSlot] = useState<ParkingSlot | null>(null);
+  // ─────────────────────────────────────────────────────────────────────────
+
   const { theme } = useTheme();
 
-  // Theme-based classes
   const getThemeClasses = () => {
     return theme === "light"
       ? {
@@ -211,7 +220,6 @@ const ParkingSlotPage: React.FC = () => {
 
   const themeClasses = getThemeClasses();
 
-  // Function to fetch parking slots
   const fetchParkingSlots = async () => {
     try {
       const response = await fetch(`/api/parking`);
@@ -238,7 +246,6 @@ const ParkingSlotPage: React.FC = () => {
     }
   };
 
-  // Fetch user's favorite locations
   const fetchFavorites = async () => {
     if (!token) return;
     try {
@@ -247,7 +254,6 @@ const ParkingSlotPage: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        // Extract just the IDs so it's easy to check `favorites.includes(id)`
         const favoriteIds = data.data.map((fav: any) => fav._id);
         setFavorites(favoriteIds);
       }
@@ -257,7 +263,6 @@ const ParkingSlotPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Get user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -269,43 +274,36 @@ const ParkingSlotPage: React.FC = () => {
         (error) => {
           console.warn("Geolocation error:", error);
           setUserLocation({ lat: 28.6139, lng: 77.209 });
-        },
+        }
       );
     } else {
       setUserLocation({ lat: 28.6139, lng: 77.209 });
     }
-
     fetchParkingSlots();
   }, []);
 
-  // Fetch favorites separately to ensure it runs when token is available
   useEffect(() => {
     if (token) {
       fetchFavorites();
     }
   }, [token]);
 
-  // Handle Toggle Favorite Button Click
   const handleToggleFavorite = async (
     e: React.MouseEvent,
-    locationId: string,
+    locationId: string
   ) => {
-    e.stopPropagation(); // Prevents map markers from triggering if nested
-
+    e.stopPropagation();
     if (!token || !user) {
       alert("Please login to save favorite locations");
       navigate("/login");
       return;
     }
-
     try {
-      // Optimistically update UI
       setFavorites((prev) =>
         prev.includes(locationId)
           ? prev.filter((id) => id !== locationId)
-          : [...prev, locationId],
+          : [...prev, locationId]
       );
-
       const res = await fetch(`/api/favorites/${locationId}`, {
         method: "POST",
         headers: {
@@ -313,27 +311,24 @@ const ParkingSlotPage: React.FC = () => {
           "Content-Type": "application/json",
         },
       });
-
       const data = await res.json();
       if (!data.success) {
-        // Revert on failure
         fetchFavorites();
         console.error("Failed to toggle favorite:", data.message);
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
-      fetchFavorites(); // Revert on failure
+      fetchFavorites();
     }
   };
 
-  // Calculate distance between two coordinates
   const calculateDistance = (
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number,
+    lon2: number
   ): string => {
-    const R = 6371; // Earth's radius in km
+    const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -349,7 +344,6 @@ const ParkingSlotPage: React.FC = () => {
       : `${distance.toFixed(1)} km`;
   };
 
-  // Get directions URL
   const getDirectionsUrl = (slot: ParkingSlot) => {
     if (!slot.coordinates) return "#";
     return `https://www.google.com/maps/dir/?api=1&destination=${slot.coordinates.lat},${slot.coordinates.lng}`;
@@ -361,7 +355,6 @@ const ParkingSlotPage: React.FC = () => {
       navigate("/login");
       return;
     }
-
     setSelectedSlot(slot);
     setPaymentAmount(slot.pricePerHour * 1);
     setDuration(1);
@@ -371,10 +364,8 @@ const ParkingSlotPage: React.FC = () => {
 
   const handleConfirmBooking = async () => {
     if (!selectedSlot || !token) return;
-
     try {
       const totalPrice = selectedSlot.pricePerHour * duration;
-
       const res = await fetch(`/api/bookings/book`, {
         method: "POST",
         headers: {
@@ -387,9 +378,7 @@ const ParkingSlotPage: React.FC = () => {
           totalPrice: totalPrice,
         }),
       });
-
       const data = await res.json();
-
       if (data.success) {
         alert("Booking successful!");
         closeModal();
@@ -452,7 +441,7 @@ const ParkingSlotPage: React.FC = () => {
 
   const getAvailabilityPercentage = (
     availableSlots: number,
-    capacity: number,
+    capacity: number
   ): number => {
     return Math.round((availableSlots / capacity) * 100);
   };
@@ -473,21 +462,18 @@ const ParkingSlotPage: React.FC = () => {
 
   const filteredAndSortedSlots = React.useMemo(() => {
     let filtered = [...parkingSlots];
-
     if (searchTerm) {
       filtered = filtered.filter(
         (slot) =>
           slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          slot.location.toLowerCase().includes(searchTerm.toLowerCase()),
+          slot.location.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     if (statusFilter) {
       filtered = filtered.filter(
-        (slot) => slot.status.toLowerCase() === statusFilter.toLowerCase(),
+        (slot) => slot.status.toLowerCase() === statusFilter.toLowerCase()
       );
     }
-
     if (sortBy) {
       switch (sortBy) {
         case "price":
@@ -499,11 +485,11 @@ const ParkingSlotPage: React.FC = () => {
               if (!a.coordinates || !b.coordinates) return 0;
               const distA = Math.sqrt(
                 Math.pow(a.coordinates.lat - userLocation.lat, 2) +
-                  Math.pow(a.coordinates.lng - userLocation.lng, 2),
+                  Math.pow(a.coordinates.lng - userLocation.lng, 2)
               );
               const distB = Math.sqrt(
                 Math.pow(b.coordinates.lat - userLocation.lat, 2) +
-                  Math.pow(b.coordinates.lng - userLocation.lng, 2),
+                  Math.pow(b.coordinates.lng - userLocation.lng, 2)
               );
               return distA - distB;
             });
@@ -514,7 +500,6 @@ const ParkingSlotPage: React.FC = () => {
           break;
       }
     }
-
     return filtered;
   }, [parkingSlots, searchTerm, statusFilter, sortBy, userLocation]);
 
@@ -542,7 +527,6 @@ const ParkingSlotPage: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        {/* Map Container */}
         <div
           className={`backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl overflow-hidden shadow-xl`}
         >
@@ -592,8 +576,8 @@ const ParkingSlotPage: React.FC = () => {
                         slot.status === "available"
                           ? "bg-gradient-to-br from-green-500 to-emerald-400"
                           : slot.status === "occupied"
-                            ? "bg-gradient-to-br from-red-500 to-pink-400"
-                            : "bg-gradient-to-br from-yellow-500 to-orange-400"
+                          ? "bg-gradient-to-br from-red-500 to-pink-400"
+                          : "bg-gradient-to-br from-yellow-500 to-orange-400"
                       }
                       border-2 border-white shadow-lg
                     `}
@@ -618,7 +602,9 @@ const ParkingSlotPage: React.FC = () => {
                             {slot.location}
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className={`${themeClasses.text} font-bold`}>
+                            <span
+                              className={`${themeClasses.text} font-bold`}
+                            >
                               ₹{slot.pricePerHour}
                             </span>
                             <span
@@ -626,8 +612,8 @@ const ParkingSlotPage: React.FC = () => {
                                 slot.status === "available"
                                   ? "bg-green-500/20 text-green-300"
                                   : slot.status === "occupied"
-                                    ? "bg-red-500/20 text-red-300"
-                                    : "bg-yellow-500/20 text-yellow-300"
+                                  ? "bg-red-500/20 text-red-300"
+                                  : "bg-yellow-500/20 text-yellow-300"
                               }`}
                             >
                               {getStatusBadge(slot.status)}
@@ -697,7 +683,9 @@ const ParkingSlotPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}>
+              <div
+                className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}
+              >
                 <div className={`text-sm ${themeClasses.textSecondary} mb-1`}>
                   Price
                 </div>
@@ -708,7 +696,9 @@ const ParkingSlotPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}>
+              <div
+                className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}
+              >
                 <div className={`text-sm ${themeClasses.textSecondary} mb-1`}>
                   Availability
                 </div>
@@ -719,7 +709,9 @@ const ParkingSlotPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}>
+              <div
+                className={`p-4 ${themeClasses.cardBgSecondary} rounded-xl`}
+              >
                 <div className={`text-sm ${themeClasses.textSecondary} mb-1`}>
                   Distance
                 </div>
@@ -729,14 +721,13 @@ const ParkingSlotPage: React.FC = () => {
                         userLocation.lat,
                         userLocation.lng,
                         selectedMapSlot.coordinates.lat,
-                        selectedMapSlot.coordinates.lng,
+                        selectedMapSlot.coordinates.lng
                       )
                     : selectedMapSlot.distance}
                 </div>
               </div>
             </div>
 
-            {/* --- NEW EMERGENCY BLOCK FOR MAP VIEW --- */}
             {selectedMapSlot.emergencyContact?.phone && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-3">
@@ -765,18 +756,27 @@ const ParkingSlotPage: React.FC = () => {
                 </div>
               </div>
             )}
-            {/* -------------------------------------- */}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <a
                 href={getDirectionsUrl(selectedMapSlot)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex-1 px-6 py-3 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.text} font-semibold rounded-xl ${themeClasses.hover} transition-all duration-300 flex items-center justify-center gap-2`}
+                className={`flex-1 px-4 py-3 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.textSecondary} font-semibold rounded-xl ${themeClasses.hover} transition-all duration-300 flex items-center justify-center gap-2`}
               >
                 <Icons.Navigation className="w-4 h-4" />
-                Get Directions
+                Directions
               </a>
+
+              <button
+                onClick={() => setFloorSlot(selectedMapSlot)}
+                title="View floor-wise slot layout"
+                className={`px-4 py-3 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.textSecondary} font-semibold rounded-xl ${themeClasses.hover} transition-all duration-300 flex items-center justify-center gap-2`}
+              >
+                <Icons.Layers className="w-4 h-4" />
+                Floors
+              </button>
+
               <button
                 onClick={() => setPredictionSlot(selectedMapSlot)}
                 className={`px-4 py-3 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.textSecondary} font-semibold rounded-xl ${themeClasses.hover} transition-all duration-300 flex items-center justify-center gap-2`}
@@ -784,6 +784,7 @@ const ParkingSlotPage: React.FC = () => {
                 <Icons.TrendingUp className="w-4 h-4" />
                 Forecast
               </button>
+
               <button
                 onClick={() => handleBookNow(selectedMapSlot)}
                 disabled={
@@ -809,12 +810,10 @@ const ParkingSlotPage: React.FC = () => {
         {filteredAndSortedSlots.map((slot) => {
           const availabilityPercentage = getAvailabilityPercentage(
             slot.availableSlots,
-            slot.capacity,
+            slot.capacity
           );
           const availabilityText = getAvailabilityText(availabilityPercentage);
-          const availabilityColor = getAvailabilityColor(
-            availabilityPercentage,
-          );
+          const availabilityColor = getAvailabilityColor(availabilityPercentage);
 
           return (
             <div
@@ -841,6 +840,7 @@ const ParkingSlotPage: React.FC = () => {
               </div>
 
               <ImageCarousel images={slot.images ?? []} name={slot.name} />
+
               <div className="p-6">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-6">
@@ -853,7 +853,7 @@ const ParkingSlotPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <div
                         className={`text-lg font-bold ${getRatingColor(
-                          slot.rating,
+                          slot.rating
                         )}`}
                       >
                         {slot?.rating ? slot.rating.toFixed(1) : "0.0"}
@@ -916,7 +916,7 @@ const ParkingSlotPage: React.FC = () => {
                             userLocation.lat,
                             userLocation.lng,
                             slot.coordinates.lat,
-                            slot.coordinates.lng,
+                            slot.coordinates.lng
                           )
                         : slot.distance}
                     </div>
@@ -970,7 +970,7 @@ const ParkingSlotPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* --- NEW EMERGENCY BLOCK FOR LIST VIEW --- */}
+                {/* Emergency Contact */}
                 {slot.emergencyContact?.phone && (
                   <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                     <div className="flex items-center gap-2 mb-3">
@@ -1001,35 +1001,48 @@ const ParkingSlotPage: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {/* --------------------------------------- */}
 
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  {/* Availability Forecast button */}
-                  <button
-                    onClick={() => setPredictionSlot(slot)}
-                    title="View availability forecast"
-                    className={`px-3 py-3 rounded-lg border ${themeClasses.cardBgSecondary} ${themeClasses.border} ${themeClasses.textSecondary} ${themeClasses.hover} transition-colors flex items-center justify-center gap-1.5 text-sm`}
-                  >
-                    <Icons.TrendingUp className="w-4 h-4" />
-                    Forecast
-                  </button>
-                  <a
-                    href={getDirectionsUrl(slot)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex-1 px-4 py-3 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.text} rounded-lg ${themeClasses.hover} transition-colors flex items-center justify-center gap-2`}
-                  >
-                    <Icons.Navigation className="w-4 h-4" />
-                    Directions
-                  </a>
+{/* ── Action Buttons — two rows to prevent overflow ──────── */}
+                <div className="flex flex-col gap-2">
+                  {/* Row 1: icon-only utility buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPredictionSlot(slot)}
+                      title="View availability forecast"
+                      className={`flex-1 py-2.5 rounded-lg border ${themeClasses.cardBgSecondary} ${themeClasses.border} ${themeClasses.textSecondary} ${themeClasses.hover} transition-colors flex items-center justify-center gap-1.5 text-xs font-medium`}
+                    >
+                      <Icons.TrendingUp className="w-3.5 h-3.5" />
+                      Forecast
+                    </button>
+
+                    <button
+                      onClick={() => setFloorSlot(slot)}
+                      title="View floor-wise slot layout"
+                      className={`flex-1 py-2.5 rounded-lg border ${themeClasses.cardBgSecondary} ${themeClasses.border} ${themeClasses.textSecondary} ${themeClasses.hover} transition-colors flex items-center justify-center gap-1.5 text-xs font-medium`}
+                    >
+                      <Icons.Layers className="w-3.5 h-3.5" />
+                      Floors
+                    </button>
+
+                    <a
+                      href={getDirectionsUrl(slot)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex-1 py-2.5 ${themeClasses.cardBgSecondary} border ${themeClasses.border} ${themeClasses.text} rounded-lg ${themeClasses.hover} transition-colors flex items-center justify-center gap-1.5 text-xs font-medium`}
+                    >
+                      <Icons.Navigation className="w-3.5 h-3.5" />
+                      Directions
+                    </a>
+                  </div>
+
+                  {/* Row 2: full-width Book Now */}
                   <button
                     onClick={() => handleBookNow(slot)}
                     disabled={
                       slot.status?.toLowerCase() !== "available" ||
                       slot.availableSlots === 0
                     }
-                    className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                    className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                       slot.status?.toLowerCase() === "available" &&
                       slot.availableSlots > 0
                         ? "bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] text-white hover:shadow-lg hover:shadow-[#FF2F6C]/20"
@@ -1041,10 +1054,11 @@ const ParkingSlotPage: React.FC = () => {
                     slot.availableSlots > 0
                       ? "Book Now"
                       : slot.availableSlots === 0
-                        ? "Fully Booked"
-                        : getStatusBadge(slot.status)}
+                      ? "Fully Booked"
+                      : getStatusBadge(slot.status)}
                   </button>
                 </div>
+                {/* ──────────────────────────────────────────────────────── */}
               </div>
             </div>
           );
@@ -1167,7 +1181,7 @@ const ParkingSlotPage: React.FC = () => {
                     >
                       {parkingSlots.reduce(
                         (sum, slot) => sum + slot.availableSlots,
-                        0,
+                        0
                       )}
                     </div>
                     <div className={`text-sm ${themeClasses.textSecondary}`}>
@@ -1188,7 +1202,8 @@ const ParkingSlotPage: React.FC = () => {
                     <div
                       className={`text-3xl font-bold ${themeClasses.text} mb-1`}
                     >
-                      ₹{Math.min(...parkingSlots.map((s) => s.pricePerHour))}
+                      ₹
+                      {Math.min(...parkingSlots.map((s) => s.pricePerHour))}
                     </div>
                     <div className={`text-sm ${themeClasses.textSecondary}`}>
                       Starting Price
@@ -1200,7 +1215,7 @@ const ParkingSlotPage: React.FC = () => {
                     >
                       {parkingSlots.reduce(
                         (sum, slot) => sum + slot.capacity,
-                        0,
+                        0
                       )}
                     </div>
                     <div className={`text-sm ${themeClasses.textSecondary}`}>
@@ -1212,7 +1227,7 @@ const ParkingSlotPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Filter/Search Section with View Toggle */}
+          {/* Filter/Search Section */}
           <div
             className={`mb-8 backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl p-6 shadow-xl`}
           >
@@ -1226,7 +1241,7 @@ const ParkingSlotPage: React.FC = () => {
                   placeholder="Search location or parking name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`w-full pl-12 pr-4 py-4 ${themeClasses.cardBgSecondary} border ${themeClasses.border} rounded-xl ${themeClasses.text} placeholder-${themeClasses.textMuted} focus:outline-none focus:border-[#1B42CB] focus:ring-2 focus:ring-[#1B42CB]/20 transition-all duration-300`}
+                  className={`w-full pl-12 pr-4 py-4 ${themeClasses.cardBgSecondary} border ${themeClasses.border} rounded-xl ${themeClasses.text} focus:outline-none focus:border-[#1B42CB] focus:ring-2 focus:ring-[#1B42CB]/20 transition-all duration-300`}
                 />
               </div>
 
@@ -1329,7 +1344,7 @@ const ParkingSlotPage: React.FC = () => {
                   >
                     {
                       filteredAndSortedSlots.filter(
-                        (s) => s.status === "available",
+                        (s) => s.status === "available"
                       ).length
                     }
                   </div>
@@ -1344,10 +1359,10 @@ const ParkingSlotPage: React.FC = () => {
                     {Math.round(
                       (filteredAndSortedSlots.reduce(
                         (sum, s) => sum + s.availableSlots / s.capacity,
-                        0,
+                        0
                       ) /
                         filteredAndSortedSlots.length) *
-                        100,
+                        100
                     )}
                     %
                   </div>
@@ -1363,8 +1378,8 @@ const ParkingSlotPage: React.FC = () => {
                     {Math.round(
                       filteredAndSortedSlots.reduce(
                         (sum, s) => sum + s.pricePerHour,
-                        0,
-                      ) / filteredAndSortedSlots.length,
+                        0
+                      ) / filteredAndSortedSlots.length
                     )}
                   </div>
                   <div className={themeClasses.textSecondary}>
@@ -1387,7 +1402,7 @@ const ParkingSlotPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Prediction Panel Modal */}
+      {/* ── Prediction Panel Modal ─────────────────────────────────────────── */}
       {predictionSlot && (
         <PredictionPanel
           parkingId={predictionSlot._id}
@@ -1396,8 +1411,18 @@ const ParkingSlotPage: React.FC = () => {
         />
       )}
 
-      {/* Booking Modal */}
-      <div        id="booking-modal"
+      {/* ── Floor Visualization Modal ──────────────────────────────────────── */}
+      {floorSlot && (
+        <FloorVisualization
+          parkingId={floorSlot._id}
+          parkingName={floorSlot.name}
+          onClose={() => setFloorSlot(null)}
+        />
+      )}
+
+      {/* ── Booking Modal ──────────────────────────────────────────────────── */}
+      <div
+        id="booking-modal"
         className="hidden fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center z-50 p-4"
       >
         <div
@@ -1428,7 +1453,9 @@ const ParkingSlotPage: React.FC = () => {
                     className={`flex items-center justify-between p-4 bg-[#1B42CB]/10 rounded-xl`}
                   >
                     <div>
-                      <div className={`text-sm ${themeClasses.textSecondary}`}>
+                      <div
+                        className={`text-sm ${themeClasses.textSecondary}`}
+                      >
                         Parking Slot
                       </div>
                       <div className={`font-bold ${themeClasses.text}`}>
@@ -1444,7 +1471,9 @@ const ParkingSlotPage: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className={`p-3 ${themeClasses.cardBg} rounded-lg`}>
-                      <div className={`text-sm ${themeClasses.textSecondary}`}>
+                      <div
+                        className={`text-sm ${themeClasses.textSecondary}`}
+                      >
                         Location
                       </div>
                       <div
@@ -1454,7 +1483,9 @@ const ParkingSlotPage: React.FC = () => {
                       </div>
                     </div>
                     <div className={`p-3 ${themeClasses.cardBg} rounded-lg`}>
-                      <div className={`text-sm ${themeClasses.textSecondary}`}>
+                      <div
+                        className={`text-sm ${themeClasses.textSecondary}`}
+                      >
                         Price/Hour
                       </div>
                       <div className={`font-medium ${themeClasses.text}`}>
@@ -1523,7 +1554,9 @@ const ParkingSlotPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
+                  <h3
+                    className={`text-lg font-semibold ${themeClasses.text}`}
+                  >
                     Payment Method
                   </h3>
                   <div className="space-y-2">
@@ -1579,7 +1612,6 @@ const ParkingSlotPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Security Note */}
                 <div
                   className={`text-center pt-4 border-t ${themeClasses.border}`}
                 >
@@ -1599,7 +1631,4 @@ const ParkingSlotPage: React.FC = () => {
   );
 };
 
-export default ParkingSlotPage; 
-
-
-
+export default ParkingSlotPage;
