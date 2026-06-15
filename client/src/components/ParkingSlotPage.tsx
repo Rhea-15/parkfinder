@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Icons from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -154,6 +155,54 @@ const ParkingSlotPage: React.FC = () => {
   } | null>(null);
   const [duration, setDuration] = useState(1);
   const [favorites, setFavorites] = useState<string[]>([]);
+
+  // Navigation & routing hook usage
+  const {
+    routeCoords,
+    loading: routingLoading,
+    error: routingError,
+    calculateRoute,
+    clearRoute,
+  } = useRouteNavigation();
+  const [geoError, setGeoError] = useState<string | null>(null);
+
+  const handleNavigate = (slot: ParkingSlot) => {
+    if (
+      !slot.coordinates ||
+      typeof slot.coordinates.lat !== "number" ||
+      typeof slot.coordinates.lng !== "number"
+    ) {
+      alert("Error: Parking slot coordinates are missing or invalid.");
+      return;
+    }
+
+    const destLat = slot.coordinates.lat;
+    const destLng = slot.coordinates.lng;
+
+    setGeoError(null);
+
+    getUserLocation()
+      .then((loc) => {
+        setUserLocation(loc);
+        calculateRoute(loc.lat, loc.lng, destLat, destLng).then((res) => {
+          if (res) {
+            setViewMode("map");
+            setSelectedMapSlot(slot);
+          }
+        });
+      })
+      .catch((err) => {
+        console.warn("Geolocation failed for route:", err);
+        setGeoError(err.message);
+        alert(`❌ Location Error: ${err.message}`);
+      });
+  };
+
+  const handleClearRoute = () => {
+    clearRoute();
+    setGeoError(null);
+  };
+
   const { token, user } = useAuth();
 
   // Prediction panel state
@@ -220,7 +269,12 @@ const ParkingSlotPage: React.FC = () => {
 
   const themeClasses = getThemeClasses();
 
-  const fetchParkingSlots = async () => {
+  /**
+   * Fetches parking slots from GET /api/admin/slots.
+   * Passes `isEV=true` as a query param when the EV filter is active,
+   * which the backend's getParkingSlots controller handles natively.
+   */
+  const fetchParkingSlots = useCallback(async (isEV: boolean = false) => {
     try {
       const response = await fetch(`/api/parking`);
       const result: ApiResponse = await response.json();
@@ -244,7 +298,7 @@ const ParkingSlotPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchFavorites = async () => {
     if (!token) return;
@@ -263,47 +317,55 @@ const ParkingSlotPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-          setUserLocation({ lat: 28.6139, lng: 77.209 });
-        }
-      );
-    } else {
-      setUserLocation({ lat: 28.6139, lng: 77.209 });
-    }
-    fetchParkingSlots();
-  }, []);
+    // Get user location
+    getUserLocation()
+      .then((loc) => {
+        setUserLocation(loc);
+      })
+      .catch((error) => {
+        console.warn(
+          "Initial user location fetch failed, using fallback Delhi coordinates:",
+          error,
+        );
+        setUserLocation({ lat: 28.6139, lng: 77.209 });
+      });
 
+    fetchParkingSlots(false);
+  }, [fetchParkingSlots]);
+
+  // Re-fetch whenever the EV filter toggle changes
+  useEffect(() => {
+    fetchParkingSlots(evFilter);
+  }, [evFilter, fetchParkingSlots]);
+
+  // Fetch favorites separately to ensure it runs when token is available
   useEffect(() => {
     if (token) {
       fetchFavorites();
     }
   }, [token]);
 
+  // Handle Toggle Favorite Button Click
   const handleToggleFavorite = async (
     e: React.MouseEvent,
-    locationId: string
+    locationId: string,
   ) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevents map markers from triggering if nested
+  
     if (!token || !user) {
       alert("Please login to save favorite locations");
       navigate("/login");
       return;
     }
+  
     try {
+      // Optimistically update UI
       setFavorites((prev) =>
         prev.includes(locationId)
           ? prev.filter((id) => id !== locationId)
-          : [...prev, locationId]
+          : [...prev, locationId],
       );
+  
       const res = await fetch(`/api/favorites/${locationId}`, {
         method: "POST",
         headers: {
@@ -311,17 +373,20 @@ const ParkingSlotPage: React.FC = () => {
           "Content-Type": "application/json",
         },
       });
+  
       const data = await res.json();
       if (!data.success) {
+        // Revert on failure
         fetchFavorites();
         console.error("Failed to toggle favorite:", data.message);
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
-      fetchFavorites();
+      fetchFavorites(); // Revert on failure
     }
   };
 
+  // Calculate distance between two coordinates
   const calculateDistance = (
     lat1: number,
     lon1: number,
