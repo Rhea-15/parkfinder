@@ -55,6 +55,6 @@ const parkingSchema = new mongoose.Schema(
         ],
       },
     ],
-  }
+  },
 );
 export default mongoose.model("Parking", parkingSchema);
