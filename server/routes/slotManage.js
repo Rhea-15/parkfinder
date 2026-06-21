@@ -2,6 +2,8 @@ import express from "express";
 import { authMiddleware, adminMiddleware } from "../middleware/auth.js";
 import { allSlots, deleteSlot, getParkingSlots, newSlot, updateSlot } from "../controllers/slotManage.controller.js";
 import { cacheMiddleware } from "../utils/cache.js";
+import { validateRequest } from "../middleware/validate.js";
+import { createSlotSchema, updateSlotSchema } from "../validators/slot.validator.js";
 
 const router = express.Router();
 
@@ -12,10 +14,10 @@ router.get("/", cacheMiddleware({ ttl: 60 }), getParkingSlots);
 router.get("/admin/all", authMiddleware, adminMiddleware, cacheMiddleware({ ttl: 60 }), allSlots);
 
 // POST new slot
-router.post("/", authMiddleware, adminMiddleware,newSlot);
+router.post("/", authMiddleware, adminMiddleware, validateRequest(createSlotSchema), newSlot);
 
 // PUT update slot
-router.put("/:id", authMiddleware, adminMiddleware,updateSlot);
+router.put("/:id", authMiddleware, adminMiddleware, validateRequest(updateSlotSchema), updateSlot);
 
 // DELETE slot
 router.delete("/:id", authMiddleware, adminMiddleware,deleteSlot);
