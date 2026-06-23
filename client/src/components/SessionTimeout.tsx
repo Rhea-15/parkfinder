@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as Icons from "lucide-react";
 import { useThemeClasses } from "../hooks/useThemeClasses";
+import { useTranslation } from "react-i18next";
 
 const TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes
 const WARNING_DURATION = 29 * 60 * 1000; // Show warning 1 minute before timeout
@@ -14,6 +15,7 @@ const SessionTimeout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const themeClasses = useThemeClasses();
+  const { t } = useTranslation();
   
   const [showWarning, setShowWarning] = useState(false);
   const showWarningRef = React.useRef(showWarning);
@@ -123,12 +125,12 @@ const SessionTimeout: React.FC = () => {
           <Icons.Clock className="w-8 h-8 text-yellow-500 animate-pulse" />
         </div>
         
-        <h2 className={`text-xl font-bold ${themeClasses.text} mb-2`}>Session Timeout Warning</h2>
+        <h2 className={`text-xl font-bold ${themeClasses.text} mb-2`}>{t("session.warning_title")}</h2>
         
         <p className={`${themeClasses.textSecondary} mb-6`}>
-          You have been inactive for a while. For your security, you will be automatically logged out in 
+          {t("session.warning_desc")} 
           <span className="font-mono text-[#FF2F6C] font-bold mx-1 text-lg">{timeLeft}</span> 
-          seconds.
+          {t("session.seconds")}
         </p>
 
         <div className="flex gap-3 justify-center">
@@ -139,14 +141,14 @@ const SessionTimeout: React.FC = () => {
             }}
             className={`px-4 py-2 rounded-xl font-semibold border ${themeClasses.border} ${themeClasses.textSecondary} hover:${themeClasses.bg} transition-colors`}
           >
-            Log Out Now
+            {t("session.logout_now")}
           </button>
           
           <button
             onClick={resetTimer}
             className={`px-6 py-2 rounded-xl font-semibold text-white bg-gradient-to-r ${themeClasses.gradient.primary} hover:shadow-lg hover:shadow-[#1B42CB]/20 transition-all`}
           >
-            Continue Session
+            {t("session.continue")}
           </button>
         </div>
       </div>
