@@ -23,6 +23,40 @@ export const getMyBookings = async (req, res) => {
     });
   }
 };
+
+import { generateBookingReceiptPDF } from "../utils/pdfGenerator.js";
+import User from "../models/User.js";
+
+// Download PDF receipt
+export const downloadReceipt = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const userId = req.user._id;
+
+    const booking = await Booking.findById(bookingId).populate("parkingId");
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    // Restrict receipt generation so users can only access their own
+    if (booking.userId.toString() !== userId.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to download this receipt" });
+    }
+
+    const user = await User.findById(booking.userId);
+
+    // Set headers for PDF download
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=Receipt_${booking._id.toString().substring(0, 8)}.pdf`);
+
+    await generateBookingReceiptPDF(booking, user || {}, res);
+  } catch (error) {
+    console.error("PDF Generation Error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: "Failed to generate PDF receipt" });
+    }
+  }
+};
 // Create new booking
 export const createBooking = async (req, res) => {
   try {

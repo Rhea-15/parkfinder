@@ -1,7 +1,7 @@
 import express from "express";
 
 import { authMiddleware } from "../middleware/auth.js";
-import { cancelBooking, createBooking, deleteBooking, getAllBookings, getMyBookings, updateBookingStatus } from "../controllers/booking.controller.js";
+import { cancelBooking, createBooking, deleteBooking, getAllBookings, getMyBookings, updateBookingStatus, downloadReceipt } from "../controllers/booking.controller.js";
 import { validateRequest } from "../middleware/validate.js";
 import { createBookingSchema, updateBookingStatusSchema, cancelBookingSchema } from "../validators/booking.validator.js";
 
@@ -27,6 +27,9 @@ router.post("/book", authMiddleware, validateRequest(createBookingSchema), creat
 
 // Cancel booking (user)
 router.delete("/cancel/:id", authMiddleware, validateRequest(cancelBookingSchema), cancelBooking);
+
+// Download PDF receipt (user/admin)
+router.get("/:id/receipt", authMiddleware, downloadReceipt);
 
 // ================== ADMIN BOOKINGS ==================
 /**
