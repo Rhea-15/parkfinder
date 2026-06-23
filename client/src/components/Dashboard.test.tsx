@@ -52,7 +52,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock API calls
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 const renderWithRouter = (ui: React.ReactElement) => {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
@@ -68,7 +68,7 @@ describe('Dashboard Booking & Spending Trends (Recharts)', () => {
   });
 
   it('renders Recharts BarChart when bookingTrends data is available', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
       if (url.includes('/api/dashboard/user-stats')) {
         return Promise.resolve({
           ok: true,
@@ -101,7 +101,7 @@ describe('Dashboard Booking & Spending Trends (Recharts)', () => {
   });
 
   it('renders empty state when bookingTrends data is empty', async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
       if (url.includes('/api/dashboard/user-stats')) {
         return Promise.resolve({
           ok: true,
@@ -125,7 +125,7 @@ describe('Dashboard Booking & Spending Trends (Recharts)', () => {
 
     // Wait for the fetch to resolve so stats is updated
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/dashboard/user-stats'),
         expect.any(Object)
       );
