@@ -84,8 +84,8 @@ app.use("/api/dashboard", dashboardRoute);
 app.use("/api/predictions", predictionRoute);
 
 // Setup Swagger Docs
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// const swaggerDocs = swaggerJsDoc(swaggerOptions);
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Root Route
 app.get("/", (req, res) => {
