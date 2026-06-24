@@ -17,30 +17,29 @@ import BackToTop from "./components/BackToTop";
 // Humare naye pages jo humne create kiye hain
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import FavoritesPage from "./pages/FavoritesPage";
 
 function App() {
   return (
     <Router>
       <Navbar />
       <BackToTop />
-      <OnboardingProvider>
-        <OnboardingCarousel />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/parkingslots" element={<ParkingSlotPage />} />
-          <Route path="/bookings" element={<BookedSlotsPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-          <Route path="/admin-panel" element={<AdminPanel />} />
-          
-          {/* Naye added routes */}
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-        </Routes>
-      </OnboardingProvider>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/parkingslots" element={<ParkingSlotPage />} />
+        <Route path="/bookings" element={<BookedSlotsPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/admin-panel" element={<AdminPanel />} />
+        
+        {/* Naye added routes */}
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+      </Routes>
     </Router>
   );
 }

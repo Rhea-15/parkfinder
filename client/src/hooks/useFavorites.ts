@@ -22,7 +22,7 @@ export const useFavorites = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && Array.isArray(data.data)) {
         const favoriteIds = data.data.map((fav: Favorite) => fav._id);
         setFavorites(favoriteIds);
       }
