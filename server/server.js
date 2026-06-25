@@ -16,6 +16,7 @@ import peakHoursRoute from "./routes/peakHoursRoute.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import floorVisualizationRoute from "./routes/floorVisualizationRoute.js";
+import reviewRoute from "./routes/reviewRoute.js";
 import { connectRedis } from "./utils/cache.js";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
@@ -24,7 +25,9 @@ import { swaggerOptions } from "./config/swagger.js";
 dotenv.config({ path: ".env" });
 
 // Connect to Redis
-connectRedis();
+if (process.env.NODE_ENV !== 'test') {
+  connectRedis();
+}
 
 // Validate critical environment variables at startup
 const requiredEnvVars = ["JWT_SECRET", "ADMIN_SECRET"];
@@ -54,8 +57,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to Database
-connectDB();
-
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 // use auth route.
 app.use("/api/auth", authRoutes);
 app.use("/api/auth/2fa", auth2faRoutes);
@@ -86,6 +90,9 @@ app.use("/api", parkingLogRoute);
 // use favorites route
 app.use("/api/favorites", favoritesRoute);
 
+// use reviews route
+app.use("/api/reviews", reviewRoute);
+
 // use dashboard.js
 app.use("/api/dashboard", dashboardRoute);
 
@@ -93,8 +100,8 @@ app.use("/api/dashboard", dashboardRoute);
 app.use("/api/predictions", predictionRoute);
 
 // Setup Swagger Docs
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// const swaggerDocs = swaggerJsDoc(swaggerOptions);
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Root Route
 app.get("/", (req, res) => {
@@ -111,6 +118,10 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

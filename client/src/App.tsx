@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ParkingSlotPage from "./components/ParkingSlotPage";
 import BookedSlotsPage from "./components/BookedSlotsPage";
 import "./App.css";
+import { OnboardingProvider } from "./context/OnboardingContext";
+import OnboardingCarousel from "./components/OnboardingCarousel";
 import Navbar from "./components/Navbar";
 import HomePage from "./components/HomePage";
 import SignupPage from "./pages/SignupPage";
@@ -15,6 +17,7 @@ import BackToTop from "./components/BackToTop";
 // Humare naye pages jo humne create kiye hain
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import FavoritesPage from "./pages/FavoritesPage";
 
 function App() {
   return (
@@ -26,6 +29,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/parkingslots" element={<ParkingSlotPage />} />
         <Route path="/bookings" element={<BookedSlotsPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
