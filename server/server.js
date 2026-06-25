@@ -17,6 +17,7 @@ import dotenv from "dotenv";
 import floorVisualizationRoute from "./routes/floorVisualizationRoute.js";
 import reviewRoute from "./routes/reviewRoute.js";
 import { connectRedis } from "./utils/cache.js";
+import "./jobs/bookingExpiry.js";
 
 dotenv.config({ path: ".env" });
 
