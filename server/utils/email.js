@@ -68,7 +68,7 @@ export const sendContactSupportEmail = async ({ name, email, subject, message })
       <hr />
       <h3>Message:</h3>
       <p>${message.replace(/\n/g, '<br>')}</p>
-    `
+    `,
   });
 };
 

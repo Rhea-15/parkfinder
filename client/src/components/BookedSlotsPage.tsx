@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import * as Icons from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import ExtendParkingModal from "./ExtendParkingModal";
@@ -218,95 +216,39 @@ const BookedSlotsPage: React.FC = () => {
 
     setDownloading(true);
     try {
-      const receiptHTML = `
-      <div style="background: #0f0f0f; color: white; padding: 20px; font-family: Arial, sans-serif; max-width: 800px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #1B42CB; font-size: 28px; margin: 10px 0;">PARKING RECEIPT</h1>
-          <p style="color: #888;">Official Booking Confirmation</p>
-        </div>
-        
-        <div style="background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-          <h2 style="color: #1B42CB; margin-top: 0;">Booking Details</h2>
-          <p><strong>Receipt ID:</strong> ${selectedBooking._id}</p>
-          <p><strong>Date:</strong> ${formatDateForReceipt(
-            selectedBooking.bookingDate,
-          )}</p>
-          <p><strong>Status:</strong> ${getStatusText(
-            selectedBooking.bookingStatus || "",
-          )}</p>
-        </div>
-        
-        <div style="background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-          <h2 style="color: #1B42CB; margin-top: 0;">Parking Information</h2>
-          <p><strong>Location:</strong> ${
-            selectedBooking.parkingId?.name || "N/A"
-          }</p>
-          <p><strong>Address:</strong> ${
-            selectedBooking.parkingId?.location || "N/A"
-          }</p>
-          <p><strong>Duration:</strong> ${
-            selectedBooking.duration || 1
-          } hours</p>
-          <p><strong>Rate:</strong> ₹${
-            selectedBooking.parkingId?.pricePerHour || 0
-          }/hour</p>
-        </div>
-        
-        <div style="background: #1a1a1a; padding: 20px; border-radius: 10px;">
-          <h2 style="color: #1B42CB; margin-top: 0;">Payment Summary</h2>
-          <p><strong>Subtotal:</strong> ₹${
-            (selectedBooking.parkingId?.pricePerHour || 0) *
-            (selectedBooking.duration || 1)
-          }</p>
-          <p style="font-size: 24px; color: #FF2F6C;"><strong>Total:</strong> ₹${
-            selectedBooking.totalPrice ||
-            selectedBooking.parkingId?.pricePerHour ||
-            0
-          }</p>
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; color: #888; font-size: 12px;">
-          <p>Thank you for choosing our service!</p>
-        </div>
-      </div>
-    `;
+      const response = await fetch(`/api/bookings/${selectedBooking._id}/receipt`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const tempDiv = document.createElement("div");
-      tempDiv.style.position = "absolute";
-      tempDiv.style.left = "-9999px";
-      tempDiv.innerHTML = receiptHTML;
-      document.body.appendChild(tempDiv);
-
-      const receiptElement = tempDiv.firstElementChild as HTMLElement;
-      if (!receiptElement) {
-        throw new Error("Failed to create receipt element");
+      if (!response.ok) {
+        let errorMsg = "Failed to generate receipt.";
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+          // Response was not JSON, use default error message
+        }
+        throw new Error(errorMsg);
       }
 
-      const canvas = await html2canvas(receiptElement, {
-        scale: 2,
-        backgroundColor: "white",
-        useCORS: true,
-      });
-
-      document.body.removeChild(tempDiv);
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const imgWidth = 160;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-      pdf.save(`Receipt_${selectedBooking._id.substring(0, 8)}.pdf`);
+      // Convert response to blob and trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Receipt_${selectedBooking._id.substring(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
       setShowReceiptModal(false);
     } catch (error) {
       console.error("Error generating receipt:", error);
-      alert("Failed to generate receipt. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to generate receipt. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -376,7 +318,7 @@ const BookedSlotsPage: React.FC = () => {
     });
   };
 
-  const filteredBookings = bookedSlots.filter((booking) => {
+  const filteredBookings = bookedSlots.filter((booking: Booking) => {
     if (filter !== "all" && booking.bookingStatus !== filter) {
       return false;
     }

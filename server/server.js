@@ -94,7 +94,6 @@ app.use("/api/favorites", favoritesRoute);
 
 // use contact route
 app.use("/api/contact", contactRoute);
-
 // use reviews route
 app.use("/api/reviews", reviewRoute);
 // use dashboard.js
