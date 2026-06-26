@@ -5,6 +5,7 @@ import * as Icons from "lucide-react";
 import type { ParkingSlot } from "../hooks/useParkingSlots";
 import { useAuth } from "../context/AuthContext";
 import { useThemeClasses } from "../hooks/useThemeClasses";
+import { toast } from "react-hot-toast";
 
 interface BookingModalProps {
   selectedSlot: ParkingSlot | null;
@@ -46,16 +47,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       });
       const data = await res.json();
       if (data.success) {
-        alert("Booking successful!");
+        toast.success("Booking successful!");
         onBookingSuccess();
         onClose();
         navigate("/bookings");
       } else {
-        alert(`❌ ${data.message || "Booking failed"}`);
+        toast.error(`${data.message || "Booking failed"}`);
       }
     } catch (err) {
       console.error("Booking error:", err);
-      alert("Failed to book slot. Please try again.");
+      toast.error("Failed to book slot. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

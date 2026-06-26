@@ -19,6 +19,7 @@ import ParkingCardSkeleton from "./ParkingCardSkeleton";
 import MapView from "./MapView";
 import BookingModal from "./BookingModal";
 import PullToRefresh from "./PullToRefresh";
+import { toast } from "react-hot-toast";
 
 const ParkingSlotPage: React.FC = () => {
   const navigate = useNavigate();
@@ -101,7 +102,7 @@ const ParkingSlotPage: React.FC = () => {
 
   const handleBookNow = (slot: ParkingSlot) => {
     if (!token || !user) {
-      alert("Please login to book a parking slot");
+      toast.error("Please login to book a parking slot");
       navigate("/login");
       return;
     }

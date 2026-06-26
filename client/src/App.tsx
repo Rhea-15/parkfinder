@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import ParkingSlotPage from "./components/ParkingSlotPage";
 import BookedSlotsPage from "./components/BookedSlotsPage";
 import "./App.css";
@@ -24,6 +25,29 @@ import SessionTimeout from "./components/SessionTimeout";
 function App() {
   return (
     <Router>
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10B981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <SessionTimeout />
       <Navbar />
       <BackToTop />

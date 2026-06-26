@@ -11,6 +11,7 @@ import BookingModal from "../components/BookingModal";
 import type { ParkingSlot } from "../hooks/useParkingSlots";
 import PeakHoursIndicator from "../components/PeakHoursIndicator";
 import FloorVisualization from "../components/FloorVisualization";
+import { toast } from "react-hot-toast";
 
 const FavoritesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const FavoritesPage: React.FC = () => {
 
   const handleBookNow = (slot: ParkingSlot) => {
     if (!token || !user) {
-      alert("Please login to book a parking slot");
+      toast.error("Please login to book a parking slot");
       navigate("/login");
       return;
     }
