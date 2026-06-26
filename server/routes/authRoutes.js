@@ -9,8 +9,6 @@ import { signup, login, verify, forgotPassword, resetPassword, verifyEmail2FA, v
 import { authLimiter, resetLimiter } from "../middleware/rateLimiter.js";
 import { validateRequest } from "../middleware/validate.js";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/auth.validator.js";
-import { authLimiter, resetLimiter } from "../middleware/rateLimiter.js";
-import { verify2FALogin } from "../controllers/auth.controller.js";
 
 
 const router = express.Router();

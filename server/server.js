@@ -18,9 +18,7 @@ import dotenv from "dotenv";
 import floorVisualizationRoute from "./routes/floorVisualizationRoute.js";
 import reviewRoute from "./routes/reviewRoute.js";
 import { connectRedis } from "./utils/cache.js";
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { swaggerOptions } from "./config/swagger.js";
+import "./jobs/bookingExpiry.js";
 
 dotenv.config({ path: ".env" });
 

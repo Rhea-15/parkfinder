@@ -85,6 +85,7 @@ export const createBooking = async (req, res) => {
       totalPrice,
       bookingDate: new Date(),
       bookingStatus: "active",
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000),
     });
 
     // Save booking first
