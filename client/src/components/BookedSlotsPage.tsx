@@ -474,7 +474,7 @@ const BookedSlotsPage: React.FC = () => {
               <div className="p-6 max-h-[70vh] overflow-y-auto">
                 <div
                   ref={receiptRef}
-                  className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-xl p-8`}
+                  className={`receipt-content ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-xl p-8`}
                 >
                   {/* Receipt Header */}
                   <div className="text-center mb-8">
@@ -735,6 +735,13 @@ const BookedSlotsPage: React.FC = () => {
                     className={`px-6 py-3 ${themeClasses.cardBg} border ${themeClasses.border} ${themeClasses.text} font-semibold rounded-xl hover:bg-[#1B42CB]/10 transition-all duration-300`}
                   >
                     Close
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className={`px-6 py-3 bg-[#191919] dark:bg-white dark:text-black text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 flex items-center gap-2`}
+                  >
+                    <Icons.Printer className="w-5 h-5" />
+                    Print
                   </button>
                   <button
                     onClick={generateReceipt}
