@@ -211,6 +211,7 @@ const Navbar: React.FC = () => {
                   <Link
                     key={item.name}
                     to={item.path}
+                    aria-current={isActive(item.path) ? "page" : undefined}
                     className={`
                       relative
                       flex items-center gap-2
@@ -500,6 +501,8 @@ const Navbar: React.FC = () => {
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={isMobileMenuOpen}
               className={`
                 md:hidden
                 w-11 h-11
@@ -616,6 +619,7 @@ const Navbar: React.FC = () => {
                     key={item.name}
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-current={isActive(item.path) ? "page" : undefined}
                     className={`
                       flex items-center gap-3
                       px-4 py-4

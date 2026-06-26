@@ -15,9 +15,11 @@ import { useThemeClasses } from "../hooks/useThemeClasses";
 // Components
 import FilterBar from "./FilterBar";
 import ParkingCard from "./ParkingCard";
+import ParkingCardSkeleton from "./ParkingCardSkeleton";
 import MapView from "./MapView";
 import BookingModal from "./BookingModal";
 import PullToRefresh from "./PullToRefresh";
+import { toast } from "react-hot-toast";
 
 const ParkingSlotPage: React.FC = () => {
   const navigate = useNavigate();
@@ -100,33 +102,14 @@ const ParkingSlotPage: React.FC = () => {
 
   const handleBookNow = (slot: ParkingSlot) => {
     if (!token || !user) {
-      alert("Please login to book a parking slot");
+      toast.error("Please login to book a parking slot");
       navigate("/login");
       return;
     }
     setSelectedSlot(slot);
   };
 
-  if (loading) {
-    return (
-      <div
-        className={`min-h-screen ${themeClasses.bg} transition-colors duration-300 flex items-center justify-center p-4`}
-      >
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-[#1B42CB] to-[#FF2F6C] animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className={`w-20 h-20 rounded-full ${themeClasses.bg}`}></div>
-            </div>
-          </div>
-          <p className={`mt-6 ${themeClasses.text} text-lg font-semibold`}>
-            Loading parking slots...
-          </p>
-          <p className={themeClasses.textSecondary}>Fetching latest availability</p>
-        </div>
-      </div>
-    );
-  }
+
 
   if (error) {
     return (
@@ -255,7 +238,13 @@ const ParkingSlotPage: React.FC = () => {
           />
 
           {/* Slots Rendering Area */}
-          {filteredAndSortedSlots.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <ParkingCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : filteredAndSortedSlots.length === 0 ? (
             <div
               className={`backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl p-12 text-center`}
             >

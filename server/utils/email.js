@@ -94,6 +94,3 @@ export const send2FAEmail = async ({ to, otp }) => {
     `
   });
 };
-    `,
-  });
-};

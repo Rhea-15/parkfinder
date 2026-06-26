@@ -8,12 +8,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.1.17",
+    "@types/zxcvbn": "^4.4.5",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
@@ -37,7 +39,8 @@
     "recharts": "^3.6.0",
     "rehype-sanitize": "^6.0.0",
     "tailwindcss": "^4.1.17",
-    "uuid": "^13.0.2"
+    "uuid": "^13.0.2",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

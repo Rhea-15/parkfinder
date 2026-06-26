@@ -6,10 +6,12 @@ import { useParkingSlots } from "../hooks/useParkingSlots";
 import { useFavorites } from "../hooks/useFavorites";
 import { useThemeClasses } from "../hooks/useThemeClasses";
 import ParkingCard from "../components/ParkingCard";
+import ParkingCardSkeleton from "../components/ParkingCardSkeleton";
 import BookingModal from "../components/BookingModal";
 import type { ParkingSlot } from "../hooks/useParkingSlots";
 import PeakHoursIndicator from "../components/PeakHoursIndicator";
 import FloorVisualization from "../components/FloorVisualization";
+import { toast } from "react-hot-toast";
 
 const FavoritesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ const FavoritesPage: React.FC = () => {
 
   const handleBookNow = (slot: ParkingSlot) => {
     if (!token || !user) {
-      alert("Please login to book a parking slot");
+      toast.error("Please login to book a parking slot");
       navigate("/login");
       return;
     }
@@ -60,21 +62,7 @@ const FavoritesPage: React.FC = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div className={`min-h-screen ${themeClasses.bg} transition-colors duration-300 flex items-center justify-center p-4`}>
-        <div className="text-center">
-          <div className="relative">
-            <div className={`w-24 h-24 rounded-full bg-gradient-to-r ${themeClasses.gradient.accent} animate-spin`}></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className={`w-20 h-20 rounded-full ${themeClasses.bg}`}></div>
-            </div>
-          </div>
-          <p className={`mt-6 ${themeClasses.text} text-lg font-semibold`}>Loading favorites...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   if (error) {
     return (
@@ -118,7 +106,13 @@ const FavoritesPage: React.FC = () => {
             </div>
           </header>
 
-          {favoriteSlots.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <ParkingCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : favoriteSlots.length === 0 ? (
             <div className={`backdrop-blur-xl ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl p-12 text-center`}>
               <div className={`w-24 h-24 bg-gradient-to-br ${themeClasses.gradient.accent}/20 rounded-full flex items-center justify-center mx-auto mb-6 border ${themeClasses.border}`}>
                 <Icons.Heart className="w-8 h-8 text-[#FF2F6C] fill-current opacity-50" />

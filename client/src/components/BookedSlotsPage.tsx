@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import * as Icons from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import ExtendParkingModal from "./ExtendParkingModal";
+import { toast } from "react-hot-toast";
 
 interface ParkingSlot {
   _id: string;
@@ -144,13 +145,13 @@ const BookedSlotsPage: React.FC = () => {
               : booking,
           ),
         );
-        alert("Booking cancelled successfully!");
+        toast.success("Booking cancelled successfully!");
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to cancel booking. Please try again.");
+      toast.error("Failed to cancel booking. Please try again.");
     }
   };
 
@@ -167,14 +168,14 @@ const BookedSlotsPage: React.FC = () => {
       const data = await res.json();
 
       if (data.success) {
-        alert("Vehicle entry recorded successfully!");
+        toast.success("Vehicle entry recorded successfully!");
         fetchBookedSlots();
       } else {
-        alert(data.message || "Failed to record vehicle entry");
+        toast.error(data.message || "Failed to record vehicle entry");
       }
     } catch (err) {
       console.error("Entry error:", err);
-      alert("Error recording vehicle entry");
+      toast.error("Error recording vehicle entry");
     }
   };
 
@@ -193,16 +194,16 @@ const BookedSlotsPage: React.FC = () => {
       const data = await res.json();
 
       if (data.success) {
-        alert(
+        toast.success(
           `Vehicle exited successfully!\nDuration: ${data.duration.toFixed(2)} minutes`,
         );
         fetchBookedSlots();
       } else {
-        alert(data.message || "Failed to record vehicle exit");
+        toast.error(data.message || "Failed to record vehicle exit");
       }
     } catch (err) {
       console.error("Exit error:", err);
-      alert("Error recording vehicle exit");
+      toast.error("Error recording vehicle exit");
     }
   };
 
@@ -248,7 +249,7 @@ const BookedSlotsPage: React.FC = () => {
       setShowReceiptModal(false);
     } catch (error) {
       console.error("Error generating receipt:", error);
-      alert(error instanceof Error ? error.message : "Failed to generate receipt. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to generate receipt. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -473,7 +474,7 @@ const BookedSlotsPage: React.FC = () => {
               <div className="p-6 max-h-[70vh] overflow-y-auto">
                 <div
                   ref={receiptRef}
-                  className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-xl p-8`}
+                  className={`receipt-content ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-xl p-8`}
                 >
                   {/* Receipt Header */}
                   <div className="text-center mb-8">
@@ -734,6 +735,13 @@ const BookedSlotsPage: React.FC = () => {
                     className={`px-6 py-3 ${themeClasses.cardBg} border ${themeClasses.border} ${themeClasses.text} font-semibold rounded-xl hover:bg-[#1B42CB]/10 transition-all duration-300`}
                   >
                     Close
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className={`px-6 py-3 bg-[#191919] dark:bg-white dark:text-black text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 flex items-center gap-2`}
+                  >
+                    <Icons.Printer className="w-5 h-5" />
+                    Print
                   </button>
                   <button
                     onClick={generateReceipt}
@@ -1116,7 +1124,7 @@ const BookedSlotsPage: React.FC = () => {
                             <button
                               className={`w-full px-4 py-2 ${themeClasses.cardBg} border ${themeClasses.border} ${themeClasses.text} rounded-lg hover:bg-[#1B42CB]/10 transition-colors text-sm flex items-center justify-center gap-2`}
                               onClick={() =>
-                                alert("Directions feature coming soon!")
+                                toast.info("Directions feature coming soon!")
                               }
                             >
                               <Icons.MapPin className="w-4 h-4" />

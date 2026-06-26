@@ -87,12 +87,13 @@ const ContactPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Your Name</label>
+                <label htmlFor="contact-name" className={`text-sm font-medium ${themeClasses.textSecondary}`}>Your Name</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Icons.User className={`w-5 h-5 ${themeClasses.textMuted}`} />
                   </div>
                   <input
+                    id="contact-name"
                     type="text"
                     name="name"
                     value={formData.name}
@@ -105,12 +106,13 @@ const ContactPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Email Address</label>
+                <label htmlFor="contact-email" className={`text-sm font-medium ${themeClasses.textSecondary}`}>Email Address</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Icons.Mail className={`w-5 h-5 ${themeClasses.textMuted}`} />
                   </div>
                   <input
+                    id="contact-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -124,12 +126,13 @@ const ContactPage: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Subject</label>
+              <label htmlFor="contact-subject" className={`text-sm font-medium ${themeClasses.textSecondary}`}>Subject</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Icons.MessageSquare className={`w-5 h-5 ${themeClasses.textMuted}`} />
                 </div>
                 <input
+                  id="contact-subject"
                   type="text"
                   name="subject"
                   value={formData.subject}
@@ -142,8 +145,9 @@ const ContactPage: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className={`text-sm font-medium ${themeClasses.textSecondary}`}>Message</label>
+              <label htmlFor="contact-message" className={`text-sm font-medium ${themeClasses.textSecondary}`}>Message</label>
               <textarea
+                id="contact-message"
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
